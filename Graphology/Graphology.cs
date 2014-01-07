@@ -95,7 +95,7 @@ namespace TeaDriven.Graphology
         private string GetMemberTypeString(string referenceTypeName)
         {
             var memberTypeString = (this.ShowDependencyTypes
-                                        ? (string.IsNullOrWhiteSpace(referenceTypeName) ? "" : " : " + referenceTypeName)
+                                        ? (string.IsNullOrEmpty(referenceTypeName) ? "" : " : " + referenceTypeName)
                                         : "");
 
             return memberTypeString;
