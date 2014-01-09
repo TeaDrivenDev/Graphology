@@ -84,7 +84,7 @@ namespace TeaDriven.Graphology
             if (depth > 0)
             {
                 depthString += new string(' ', 3 * (depth - 1));
-                depthString += " ►";
+                depthString += " >";
             }
 
             var memberTypeString = this.GetMemberTypeString(referenceTypeName);
