@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package>
+    <metadata>
+        <id>TeaDriven.Graphology</id>
+        <version>0.0.0</version>
+        <title>Graphology</title>
+        <authors>Andreas Triesch</authors>
+        <owners>Andreas Triesch</owners>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <description>Graphology</description>
+        <dependencies>
+            <dependency id="fasterflect" version="2.1.3" />
+        </dependencies>
+    </metadata>
+    <files>
+        <file src="TeaDriven.Graphology.dll" target="lib\net35" />
+        <file src="TeaDriven.Graphology.xml" target="lib\net35" />
+    </files>
+</package>
