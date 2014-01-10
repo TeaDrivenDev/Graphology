@@ -80,6 +80,7 @@ publish
 
 # NuGet Packages Directory
 #packages
+NugetPackages
 
 # Windows Azure Build Output
 csx
