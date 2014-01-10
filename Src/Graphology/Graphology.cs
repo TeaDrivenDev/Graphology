@@ -1,5 +1,6 @@
 ﻿using Fasterflect;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -40,10 +41,10 @@ namespace TeaDriven.Graphology
 
         public string Graph(object dings)
         {
-            return this.GetObjectGraph(dings, "", 0);
+            return this.GetObjectGraph(dings, "", 0, new List<object>());
         }
 
-        private string GetObjectGraph(object dings, string referenceTypeName, int depth)
+        private string GetObjectGraph(object dings, string referenceTypeName, int depth, IEnumerable<object> graphPath)
         {
             var graph = "";
 
@@ -53,26 +54,40 @@ namespace TeaDriven.Graphology
             {
                 graph += this.GetTypeString(referenceTypeName, depth, dingsType);
 
-                if (!this.DoNotFollowType(dingsType))
+                if ((!this.DoNotFollowType(dingsType)) && (!graphPath.Contains(dings)))
                 {
-                    graph += this.GetSubGraph(dings, dingsType, depth);
+                    graph += this.GetSubGraph(dings, dingsType, depth, graphPath.Concat(new List<object>() { dings }));
                 }
             }
 
             return graph;
         }
 
-        private string GetSubGraph(object dings, Type dingsType, int depth)
+        private string GetSubGraph(object dings, Type dingsType, int depth, IEnumerable<object> graphPath)
         {
             string graph = "";
 
-            var fields = dingsType.GetFields(BindingFlags.Instance | BindingFlags.NonPublic);
+            var ien = dingsType.Implements<IEnumerable>();
 
-            var fieldValues = fields.Select(fi => new { TypeName = fi.FieldType.Name, FieldValue = dings.GetFieldValue(fi.Name) });
-
-            foreach (var fieldValue in fieldValues.Where(v => null != v.FieldValue))
+            if (ien)
             {
-                graph += this.GetObjectGraph(fieldValue.FieldValue, fieldValue.TypeName, depth + 1);
+                var ienu = dings as IEnumerable;
+
+                foreach (var lol in ienu)
+                {
+                    graph += this.GetObjectGraph(lol, "name", depth + 1, graphPath);
+                }
+            }
+            else
+            {
+                var fields = dingsType.GetFields(BindingFlags.Instance | BindingFlags.NonPublic);
+
+                var fieldValues = fields.Select(fi => new { TypeName = fi.FieldType.Name, FieldValue = dings.GetFieldValue(fi.Name) });
+
+                foreach (var fieldValue in fieldValues.Where(v => null != v.FieldValue))
+                {
+                    graph += this.GetObjectGraph(fieldValue.FieldValue, fieldValue.TypeName, depth + 1, graphPath);
+                }
             }
 
             return graph;
