@@ -8,40 +8,6 @@ using System.Text.RegularExpressions;
 
 namespace TeaDriven.Graphology
 {
-    public class LazyGetSubGraph : IGetSubGraph
-    {
-        #region IGetSubGraph Members
-
-        public bool For(object dings, Type dingsType, int depth, IEnumerable<object> graphPath, out string graph)
-        {
-            return this.GetSubGraph.For(dings, dingsType, depth, graphPath, out graph);
-        }
-
-        #endregion IGetSubGraph Members
-
-        public IGetSubGraph GetSubGraph { get; set; }
-    }
-
-    public class LazyGetObjectGraph : IGetObjectGraph
-    {
-        #region IGetObjectGraph Members
-
-        public bool ShowDependencyTypes
-        {
-            get { return this.GetObjectGraph.ShowDependencyTypes; }
-            set { this.GetObjectGraph.ShowDependencyTypes = value; }
-        }
-
-        public string For(object dings, string referenceTypeName, int depth, IEnumerable<object> graphPath)
-        {
-            return this.GetObjectGraph.For(dings, referenceTypeName, depth, graphPath);
-        }
-
-        #endregion IGetObjectGraph Members
-
-        public IGetObjectGraph GetObjectGraph { get; set; }
-    }
-
     public class CreateGraphologist
     {
         private bool _showDependencyTypes = true;
@@ -74,6 +40,8 @@ namespace TeaDriven.Graphology
         }
     }
 
+    #region IGetObjectGraph
+
     public interface IGetObjectGraph
     {
         bool ShowDependencyTypes { get; set; }
@@ -81,6 +49,26 @@ namespace TeaDriven.Graphology
         //ExclusionRulesSet ExclusionRules { get; set; }
 
         string For(object dings, string referenceTypeName, int depth, IEnumerable<object> graphPath);
+    }
+
+    public class LazyGetObjectGraph : IGetObjectGraph
+    {
+        #region IGetObjectGraph Members
+
+        public bool ShowDependencyTypes
+        {
+            get { return this.GetObjectGraph.ShowDependencyTypes; }
+            set { this.GetObjectGraph.ShowDependencyTypes = value; }
+        }
+
+        public string For(object dings, string referenceTypeName, int depth, IEnumerable<object> graphPath)
+        {
+            return this.GetObjectGraph.For(dings, referenceTypeName, depth, graphPath);
+        }
+
+        #endregion IGetObjectGraph Members
+
+        public IGetObjectGraph GetObjectGraph { get; set; }
     }
 
     public class GetObjectGraph : IGetObjectGraph
@@ -173,6 +161,10 @@ namespace TeaDriven.Graphology
         }
     }
 
+    #endregion IGetObjectGraph
+
+    #region IGetSubGraph
+
     public interface IGetSubGraph
     {
         bool For(object dings, Type dingsType, int depth, IEnumerable<object> graphPath, out string graph);
@@ -217,6 +209,8 @@ namespace TeaDriven.Graphology
             return true;
         }
     }
+
+    #endregion IGetSubGraph
 
     public class Graphologist
     {
