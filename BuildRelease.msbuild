@@ -22,6 +22,8 @@
     <ItemGroup>
         <BuildOutput Include="Src\Graphology\bin\Release\TeaDriven.Graphology.dll" />
         <BuildOutput Include="Src\Graphology\bin\Release\TeaDriven.Graphology.XML" />
+        <BuildOutput Include="Src\Graphology.AutoFixture\bin\Release\TeaDriven.Graphology.AutoFixture.dll" />
+        <BuildOutput Include="Src\Graphology.AutoFixture\bin\Release\TeaDriven.Graphology.AutoFixture.XML" />
     </ItemGroup>
     <!--<ItemGroup>
     	<NUnitAddinFiles Include="Src\AutoFixture.NUnit2\bin\Release\Ploeh.AutoFixture.NUnit2.Addins.dll" />
@@ -104,7 +106,7 @@
                  Query="//metadata/version"
                  Value="$(SemanticVersion)" />
         <XmlPoke XmlInputPath="$(TempNuspecFilePath)"
-                 Query="//metadata/dependencies/dependency[contains(@id, 'graphology')]/@version"
+                 Query="//metadata/dependencies/dependency[contains(@id, 'TeaDriven.Graphology')]/@version"
                  Value="$(SemanticVersion)" />
     </Target>
     <Target Name="NuGetPack" DependsOnTargets="NuGetPrepare">
