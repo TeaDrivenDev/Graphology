@@ -22,6 +22,26 @@ namespace TeaDriven.Graphology
         public IGetSubGraph GetSubGraph { get; set; }
     }
 
+    public class LazyGetObjectGraph : IGetObjectGraph
+    {
+        #region IGetObjectGraph Members
+
+        public bool ShowDependencyTypes
+        {
+            get { return this.GetObjectGraph.ShowDependencyTypes; }
+            set { this.GetObjectGraph.ShowDependencyTypes = value; }
+        }
+
+        public string For(object dings, string referenceTypeName, int depth, IEnumerable<object> graphPath)
+        {
+            return this.GetObjectGraph.For(dings, referenceTypeName, depth, graphPath);
+        }
+
+        #endregion IGetObjectGraph Members
+
+        public IGetObjectGraph GetObjectGraph { get; set; }
+    }
+
     public class CreateGraphologist
     {
         private bool _showDependencyTypes = true;
@@ -41,12 +61,12 @@ namespace TeaDriven.Graphology
 
         public Graphologist Now()
         {
-            LazyGetSubGraph getSubGraph = new LazyGetSubGraph();
-            IGetObjectGraph getObjectGraph = new GetObjectGraph(getSubGraph, this.ExclusionRules)
+            LazyGetObjectGraph getObjectGraph = new LazyGetObjectGraph();
+            IGetSubGraph getSubGraph = new GetSubGraph(getObjectGraph);
+            getObjectGraph.GetObjectGraph = new GetObjectGraph(getSubGraph, this.ExclusionRules)
                                              {
                                                  ShowDependencyTypes = this._showDependencyTypes
                                              };
-            getSubGraph.GetSubGraph = new GetSubGraph(getObjectGraph);
 
             Graphologist graphologist = new Graphologist(getObjectGraph);
 
