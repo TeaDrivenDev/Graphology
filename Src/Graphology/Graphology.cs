@@ -8,7 +8,46 @@ using System.Text.RegularExpressions;
 
 namespace TeaDriven.Graphology
 {
-    public class Graphologist
+    public class CreateGraphologist
+    {
+        private bool _showDependencyTypes = true;
+        private ExclusionRulesSet _exclusionRules = new ExclusionRulesSet();
+
+        public bool ShowDependencyTypes
+        {
+            get { return this._showDependencyTypes; }
+            set { this._showDependencyTypes = value; }
+        }
+
+        public ExclusionRulesSet ExclusionRules
+        {
+            get { return this._exclusionRules; }
+            set { this._exclusionRules = value; }
+        }
+
+        public Graphologist Now()
+        {
+            IGetObjectGraph getObjectGraph = new GetObjectGraph(this.ExclusionRules)
+                                             {
+                                                 ShowDependencyTypes = this.ShowDependencyTypes
+                                             };
+
+            Graphologist graphologist = new Graphologist(getObjectGraph);
+
+            return graphologist;
+        }
+    }
+
+    public interface IGetObjectGraph
+    {
+        bool ShowDependencyTypes { get; set; }
+
+        //ExclusionRulesSet ExclusionRules { get; set; }
+
+        string For(object dings, string referenceTypeName, int depth, IEnumerable<object> graphPath);
+    }
+
+    public class GetObjectGraph : IGetObjectGraph
     {
         private bool _showDependencyTypes = true;
 
@@ -18,33 +57,29 @@ namespace TeaDriven.Graphology
             set { this._showDependencyTypes = value; }
         }
 
-        private readonly ExclusionRulesSet _exclusionRulesSet = new MinimalExclusionRulesSet();
+        private readonly ExclusionRulesSet _exclusionRules = new MinimalExclusionRulesSet();
 
-        /// <summary>
-        /// Creates a new instance of the Graphologist class
-        /// </summary>
-        public Graphologist()
+        private ExclusionRulesSet ExclusionRules
+        {
+            get { return this._exclusionRules; }
+
+            set
+            {
+                this._exclusionRules.DoNotFollow = value.DoNotFollow;
+                this._exclusionRules.Exclude = value.Exclude;
+            }
+        }
+
+        public GetObjectGraph()
         {
         }
 
-        /// <summary>
-        /// Creates a new instance of the Graphologist class with the specified set of exclusion rules
-        /// </summary>
-        /// <param name="exclusionRulesSet">A set of rules specifying which types not to recurse into or ignore completely</param>
-        public Graphologist(ExclusionRulesSet exclusionRulesSet)
+        public GetObjectGraph(ExclusionRulesSet exclusionRules)
         {
-            if (exclusionRulesSet == null) throw new ArgumentNullException("exclusionRulesSet");
-
-            this._exclusionRulesSet.Exclude = exclusionRulesSet.Exclude;
-            this._exclusionRulesSet.DoNotFollow = exclusionRulesSet.DoNotFollow;
+            this.ExclusionRules = exclusionRules;
         }
 
-        public string Graph(object dings)
-        {
-            return this.GetObjectGraph(dings, "", 0, new List<object>());
-        }
-
-        private string GetObjectGraph(object dings, string referenceTypeName, int depth, IEnumerable<object> graphPath)
+        public string For(object dings, string referenceTypeName, int depth, IEnumerable<object> graphPath)
         {
             var graph = "";
 
@@ -75,7 +110,7 @@ namespace TeaDriven.Graphology
 
                 foreach (var lol in ienu)
                 {
-                    graph += this.GetObjectGraph(lol, "name", depth + 1, graphPath);
+                    graph += this.For(lol, "", depth + 1, graphPath);
                 }
             }
             else
@@ -86,7 +121,7 @@ namespace TeaDriven.Graphology
 
                 foreach (var fieldValue in fieldValues.Where(v => null != v.FieldValue))
                 {
-                    graph += this.GetObjectGraph(fieldValue.FieldValue, fieldValue.TypeName, depth + 1, graphPath);
+                    graph += this.For(fieldValue.FieldValue, fieldValue.TypeName, depth + 1, graphPath);
                 }
             }
 
@@ -118,12 +153,30 @@ namespace TeaDriven.Graphology
 
         private bool TypeIsExcluded(Type t)
         {
-            return this._exclusionRulesSet.Exclude.AppliesTo(t);
+            return this._exclusionRules.Exclude.AppliesTo(t);
         }
 
         private bool DoNotFollowType(Type t)
         {
-            return this._exclusionRulesSet.DoNotFollow.AppliesTo(t);
+            return this._exclusionRules.DoNotFollow.AppliesTo(t);
+        }
+    }
+
+    public class Graphologist
+    {
+        private readonly IGetObjectGraph _getObjectGraph;
+
+        /// <summary>
+        /// Creates a new instance of the Graphologist class
+        /// </summary>
+        public Graphologist(IGetObjectGraph getObjectGraph)
+        {
+            _getObjectGraph = getObjectGraph;
+        }
+
+        public string Graph(object dings)
+        {
+            return this._getObjectGraph.For(dings, "", 0, new List<object>());
         }
     }
 

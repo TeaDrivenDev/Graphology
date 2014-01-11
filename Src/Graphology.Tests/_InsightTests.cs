@@ -15,7 +15,12 @@ namespace TeaDriven.Graphology.Tests
             // Arrange
             var grah = new Grah(new[] { new Grah2(), new Grah2() });
 
-            var graphologist = new Graphologist();
+            var createGraphologist = new CreateGraphologist()
+            {
+                //ExclusionRules = new MinimalExclusionRulesSet()
+            };
+
+            var graphologist = createGraphologist.Now();
 
             // Act
             var graph = graphologist.Graph(grah);
