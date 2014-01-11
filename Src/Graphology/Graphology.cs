@@ -12,9 +12,9 @@ namespace TeaDriven.Graphology
     {
         #region IGetSubGraph Members
 
-        public string For(object dings, Type dingsType, int depth, IEnumerable<object> graphPath)
+        public bool For(object dings, Type dingsType, int depth, IEnumerable<object> graphPath, out string graph)
         {
-            return this.GetSubGraph.For(dings, dingsType, depth, graphPath);
+            return this.GetSubGraph.For(dings, dingsType, depth, graphPath, out graph);
         }
 
         #endregion IGetSubGraph Members
@@ -110,7 +110,9 @@ namespace TeaDriven.Graphology
 
                 if ((!this.DoNotFollowType(dingsType)) && (!graphPath.Contains(dings)))
                 {
-                    graph += this._getSubGraph.For(dings, dingsType, depth, graphPath.Concat(new List<object>() { dings }));
+                    string subGraph;
+                    bool handled = this._getSubGraph.For(dings, dingsType, depth, graphPath.Concat(new List<object>() { dings }), out subGraph);
+                    graph += subGraph;
                 }
             }
 
@@ -153,7 +155,7 @@ namespace TeaDriven.Graphology
 
     public interface IGetSubGraph
     {
-        string For(object dings, Type dingsType, int depth, IEnumerable<object> graphPath);
+        bool For(object dings, Type dingsType, int depth, IEnumerable<object> graphPath, out string graph);
     }
 
     public class GetSubGraph : IGetSubGraph
@@ -165,9 +167,9 @@ namespace TeaDriven.Graphology
             _getObjectGraph = getObjectGraph;
         }
 
-        public string For(object dings, Type dingsType, int depth, IEnumerable<object> graphPath)
+        public bool For(object dings, Type dingsType, int depth, IEnumerable<object> graphPath, out string graph)
         {
-            string graph = "";
+            graph = "";
 
             var ien = dingsType.Implements<IEnumerable>();
 
@@ -192,7 +194,7 @@ namespace TeaDriven.Graphology
                 }
             }
 
-            return graph;
+            return true;
         }
     }
 
