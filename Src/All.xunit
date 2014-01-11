@@ -2,5 +2,6 @@
 <xunit>
   <assemblies>
     <assembly filename="Graphology.Tests\bin\Release\TeaDriven.Graphology.Tests.dll" shadow-copy="true" />
+    <assembly filename="Graphology.AutoFixture.Tests\bin\Release\TeaDriven.Graphology.AutoFixture.Tests.dll" shadow-copy="true" />
   </assemblies>
 </xunit>
