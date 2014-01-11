@@ -30,8 +30,23 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="NSubstitute">
+      <HintPath>..\..\Packages\NSubstitute.1.7.0.0\lib\NET40\NSubstitute.dll</HintPath>
+    </Reference>
+    <Reference Include="Ploeh.Albedo">
+      <HintPath>..\..\Packages\Albedo.0.4.0\lib\net35\Ploeh.Albedo.dll</HintPath>
+    </Reference>
     <Reference Include="Ploeh.AutoFixture">
       <HintPath>..\..\Packages\AutoFixture.3.16.4\lib\net40\Ploeh.AutoFixture.dll</HintPath>
+    </Reference>
+    <Reference Include="Ploeh.AutoFixture.AutoNSubstitute">
+      <HintPath>..\..\Packages\AutoFixture.AutoNSubstitute.3.16.4\lib\net40\Ploeh.AutoFixture.AutoNSubstitute.dll</HintPath>
+    </Reference>
+    <Reference Include="Ploeh.AutoFixture.Idioms">
+      <HintPath>..\..\Packages\AutoFixture.Idioms.3.16.4\lib\net40\Ploeh.AutoFixture.Idioms.dll</HintPath>
+    </Reference>
+    <Reference Include="Ploeh.AutoFixture.Xunit">
+      <HintPath>..\..\Packages\AutoFixture.Xunit.3.16.4\lib\net40\Ploeh.AutoFixture.Xunit.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -52,6 +67,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="app.config" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>

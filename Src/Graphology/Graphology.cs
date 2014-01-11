@@ -28,7 +28,13 @@ namespace TeaDriven.Graphology
         public Graphologist Now()
         {
             LazyGetObjectGraph getObjectGraph = new LazyGetObjectGraph();
-            IGetSubGraph getSubGraph = new GetSubGraph(getObjectGraph);
+
+            IGetSubGraph getSubGraph = new CompositeGetSubGraph(new List<IGetSubGraph>()
+                                                                {
+                                                                    new EnumerableGetSubGraph(getObjectGraph),
+                                                                    new DefaultGetSubGraph(getObjectGraph)
+                                                                });
+
             getObjectGraph.GetObjectGraph = new GetObjectGraph(getSubGraph, this.ExclusionRules)
                                              {
                                                  ShowDependencyTypes = this._showDependencyTypes
@@ -45,8 +51,6 @@ namespace TeaDriven.Graphology
     public interface IGetObjectGraph
     {
         bool ShowDependencyTypes { get; set; }
-
-        //ExclusionRulesSet ExclusionRules { get; set; }
 
         string For(object dings, string referenceTypeName, int depth, IEnumerable<object> graphPath);
     }
@@ -96,13 +100,12 @@ namespace TeaDriven.Graphology
 
         public GetObjectGraph(IGetSubGraph getSubGraph)
         {
-            _getSubGraph = getSubGraph;
+            this._getSubGraph = getSubGraph;
         }
 
         public GetObjectGraph(IGetSubGraph getSubGraph, ExclusionRulesSet exclusionRules)
+            : this(getSubGraph)
         {
-            _getSubGraph = getSubGraph;
-
             this.ExclusionRules = exclusionRules;
         }
 
@@ -170,18 +173,54 @@ namespace TeaDriven.Graphology
         bool For(object dings, Type dingsType, int depth, IEnumerable<object> graphPath, out string graph);
     }
 
-    public class GetSubGraph : IGetSubGraph
+    public class CompositeGetSubGraph : IGetSubGraph
     {
-        private readonly IGetObjectGraph _getObjectGraph;
+        private readonly IEnumerable<IGetSubGraph> _getSubGraphs;
 
-        public GetSubGraph(IGetObjectGraph getObjectGraph)
+        public CompositeGetSubGraph(IEnumerable<IGetSubGraph> getSubGraphs)
         {
-            _getObjectGraph = getObjectGraph;
+            if (getSubGraphs == null) throw new ArgumentNullException("getSubGraphs");
+
+            this._getSubGraphs = getSubGraphs;
         }
 
         public bool For(object dings, Type dingsType, int depth, IEnumerable<object> graphPath, out string graph)
         {
             graph = "";
+
+            bool handled = false;
+
+            foreach (IGetSubGraph getSubGraph in this._getSubGraphs)
+            {
+                handled = getSubGraph.For(dings, dingsType, depth, graphPath, out graph);
+
+                if (handled)
+                {
+                    // TODO: Unbreak
+                    break;
+                }
+            }
+
+            return handled;
+        }
+    }
+
+    public class EnumerableGetSubGraph : IGetSubGraph
+    {
+        private readonly IGetObjectGraph _getObjectGraph;
+
+        public EnumerableGetSubGraph(IGetObjectGraph getObjectGraph)
+        {
+            _getObjectGraph = getObjectGraph;
+        }
+
+        #region IGetSubGraph Members
+
+        public bool For(object dings, Type dingsType, int depth, IEnumerable<object> graphPath, out string graph)
+        {
+            graph = "";
+
+            bool handled = false;
 
             var ien = dingsType.Implements<IEnumerable>();
 
@@ -193,21 +232,44 @@ namespace TeaDriven.Graphology
                 {
                     graph += this._getObjectGraph.For(lol, "", depth + 1, graphPath);
                 }
+
+                handled = true;
             }
-            else
+
+            return handled;
+        }
+
+        #endregion IGetSubGraph Members
+    }
+
+    public class DefaultGetSubGraph : IGetSubGraph
+    {
+        private readonly IGetObjectGraph _getObjectGraph;
+
+        public DefaultGetSubGraph(IGetObjectGraph getObjectGraph)
+        {
+            _getObjectGraph = getObjectGraph;
+        }
+
+        #region IGetSubGraph Members
+
+        public bool For(object dings, Type dingsType, int depth, IEnumerable<object> graphPath, out string graph)
+        {
+            graph = "";
+
+            var fields = dingsType.GetFields(BindingFlags.Instance | BindingFlags.NonPublic);
+
+            var fieldValues = fields.Select(fi => new { TypeName = fi.FieldType.Name, FieldValue = dings.GetFieldValue(fi.Name) });
+
+            foreach (var fieldValue in fieldValues.Where(v => null != v.FieldValue))
             {
-                var fields = dingsType.GetFields(BindingFlags.Instance | BindingFlags.NonPublic);
-
-                var fieldValues = fields.Select(fi => new { TypeName = fi.FieldType.Name, FieldValue = dings.GetFieldValue(fi.Name) });
-
-                foreach (var fieldValue in fieldValues.Where(v => null != v.FieldValue))
-                {
-                    graph += this._getObjectGraph.For(fieldValue.FieldValue, fieldValue.TypeName, depth + 1, graphPath);
-                }
+                graph += this._getObjectGraph.For(fieldValue.FieldValue, fieldValue.TypeName, depth + 1, graphPath);
             }
 
             return true;
         }
+
+        #endregion IGetSubGraph Members
     }
 
     #endregion IGetSubGraph

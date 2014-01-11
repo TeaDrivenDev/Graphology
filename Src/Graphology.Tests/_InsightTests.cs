@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
@@ -15,10 +14,7 @@ namespace TeaDriven.Graphology.Tests
             // Arrange
             var grah = new Grah(new[] { new Grah2(), new Grah2() });
 
-            var createGraphologist = new CreateGraphologist()
-            {
-                //ExclusionRules = new MinimalExclusionRulesSet()
-            };
+            var createGraphologist = new CreateGraphologist();
 
             var graphologist = createGraphologist.Now();
 

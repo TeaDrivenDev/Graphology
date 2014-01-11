@@ -11,10 +11,7 @@ namespace TeaDriven.Graphology.AutoFixture.Tests
             // Arrange
             var fixture = new Fixture();
 
-            var createGraphologist = new CreateGraphologist()
-                                     {
-                                         //ExclusionRules = new MinimalExclusionRulesSet()
-                                     };
+            var createGraphologist = new CreateGraphologist();
 
             var graphologist = createGraphologist.Now();
 
