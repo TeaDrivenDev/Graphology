@@ -55,7 +55,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="NewGraphology.cs" />
     <Compile Include="Graphology.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

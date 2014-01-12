@@ -65,17 +65,17 @@ namespace TeaDriven.Graphology.Tests
         [Theory, AutoNSubstituteData]
         public void Constructor_HasNullGuards(GuardClauseAssertion assertion)
         {
-            assertion.Verify(typeof(DefaultGetObjectGraphRepresentation).GetConstructors());
+            assertion.Verify(typeof(DefaultGetObjectGraph).GetConstructors());
         }
 
         [Theory, AutoNSubstituteData]
-        public void Constructor_ReturnsIGetObjectGraphRepresentation(DefaultGetObjectGraphRepresentation sut)
+        public void Constructor_ReturnsIGetObjectGraphRepresentation(DefaultGetObjectGraph sut)
         {
-            Assert.IsAssignableFrom<IGetObjectGraphRepresentation>(sut);
+            Assert.IsAssignableFrom<IGetObjectGraph>(sut);
         }
 
         [Theory, AutoNSubstituteData]
-        public void For_ObjectWithoutDependencies_ReturnsCorrectGraphNode(DefaultGetObjectGraphRepresentation sut,
+        public void For_ObjectWithoutDependencies_ReturnsCorrectGraphNode(DefaultGetObjectGraph sut,
                                                                           NoDependencyType currentObject)
         {
         }
