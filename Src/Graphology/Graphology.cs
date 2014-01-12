@@ -8,10 +8,12 @@ using System.Text.RegularExpressions;
 
 namespace TeaDriven.Graphology
 {
+    #region Facade objects
+
     public class CreateGraphologist
     {
         private bool _showDependencyTypes = true;
-        private ExclusionRulesSet _exclusionRules = new ExclusionRulesSet();
+        private TypeExclusions _typeExclusions = new TypeExclusions();
 
         public bool ShowDependencyTypes
         {
@@ -19,10 +21,10 @@ namespace TeaDriven.Graphology
             set { this._showDependencyTypes = value; }
         }
 
-        public ExclusionRulesSet ExclusionRules
+        public TypeExclusions TypeExclusions
         {
-            get { return this._exclusionRules; }
-            set { this._exclusionRules = value; }
+            get { return this._typeExclusions; }
+            set { this._typeExclusions = value; }
         }
 
         public Graphologist Now()
@@ -30,52 +32,58 @@ namespace TeaDriven.Graphology
             LazyGetObjectGraph getObjectGraph = new LazyGetObjectGraph();
 
             IGetSubGraph getSubGraph = new CompositeGetSubGraph(new List<IGetSubGraph>()
-                                                                {
-                                                                    new EnumerableGetSubGraph(getObjectGraph),
-                                                                    new DefaultGetSubGraph(getObjectGraph)
-                                                                });
+                                                                                            {
+                                                                                                new EnumerableGetSubGraph(
+                                                                                                    getObjectGraph, this.TypeExclusions),
+                                                                                                new DefaultGetSubGraph(
+                                                                                                    getObjectGraph, this.TypeExclusions)
+                                                                                            });
 
-            getObjectGraph.GetObjectGraph = new GetObjectGraph(getSubGraph, this.ExclusionRules)
-                                             {
-                                                 ShowDependencyTypes = this._showDependencyTypes
-                                             };
+            getObjectGraph.GetObjectGraph = new DefaultGetObjectGraph(getSubGraph, this.TypeExclusions);
 
-            Graphologist graphologist = new Graphologist(getObjectGraph);
+            GraphTraversal traversal = new GraphTraversal(getObjectGraph);
+
+            GraphVisualizer visualizer = new GraphVisualizer();
+
+            Graphologist graphologist = new Graphologist(traversal, visualizer);
 
             return graphologist;
         }
     }
 
-    #region IGetObjectGraph
-
-    public interface IGetObjectGraph
+    public class Graphologist
     {
-        bool ShowDependencyTypes { get; set; }
+        private readonly GraphTraversal _traversal;
+        private readonly GraphVisualizer _visualizer;
 
-        string For(object dings, string referenceTypeName, int depth, IEnumerable<object> graphPath);
-    }
-
-    public class LazyGetObjectGraph : IGetObjectGraph
-    {
-        #region IGetObjectGraph Members
-
-        public bool ShowDependencyTypes
+        public Graphologist(GraphTraversal traversal, GraphVisualizer visualizer)
         {
-            get { return this.GetObjectGraph.ShowDependencyTypes; }
-            set { this.GetObjectGraph.ShowDependencyTypes = value; }
+            _traversal = traversal;
+            _visualizer = visualizer;
         }
 
-        public string For(object dings, string referenceTypeName, int depth, IEnumerable<object> graphPath)
+        public string Graph(object targetObject)
         {
-            return this.GetObjectGraph.For(dings, referenceTypeName, depth, graphPath);
+            return this._visualizer.Draw(this._traversal.Traverse(targetObject));
         }
-
-        #endregion IGetObjectGraph Members
-
-        public IGetObjectGraph GetObjectGraph { get; set; }
     }
 
-    public class GetObjectGraph : IGetObjectGraph
+    public class GraphTraversal
+    {
+        private readonly IGetObjectGraph _getObjectGraph;
+
+        public GraphTraversal(IGetObjectGraph getObjectGraph)
+        {
+            this._getObjectGraph = getObjectGraph;
+        }
+
+        public GraphNode Traverse(object targetObject)
+        {
+            return this._getObjectGraph.For(targetObject, targetObject.GetType(), "root", new List<object>());
+        }
+    }
+
+    public class GraphVisualizer
     {
         public bool ShowDependencyTypes
         {
@@ -83,54 +91,28 @@ namespace TeaDriven.Graphology
             set { this._showDependencyTypes = value; }
         }
 
-        private readonly ExclusionRulesSet _exclusionRules = new MinimalExclusionRulesSet();
-        private readonly IGetSubGraph _getSubGraph;
         private bool _showDependencyTypes = true;
 
-        private ExclusionRulesSet ExclusionRules
+        public string Draw(GraphNode graphNode)
         {
-            get { return this._exclusionRules; }
+            return this.Draw(graphNode, 0);
+        }
 
-            set
+        private string Draw(GraphNode graphNode, int depth)
+        {
+            string graph = this.GetTypeString(graphNode.ReferenceType.Name, depth, graphNode.ObjectType);
+
+            foreach (GraphNode subGraphNode in graphNode.SubGraph)
             {
-                this._exclusionRules.DoNotFollow = value.DoNotFollow;
-                this._exclusionRules.Exclude = value.Exclude;
-            }
-        }
+                int newDepth = depth + 1;
 
-        public GetObjectGraph(IGetSubGraph getSubGraph)
-        {
-            this._getSubGraph = getSubGraph;
-        }
-
-        public GetObjectGraph(IGetSubGraph getSubGraph, ExclusionRulesSet exclusionRules)
-            : this(getSubGraph)
-        {
-            this.ExclusionRules = exclusionRules;
-        }
-
-        public string For(object dings, string referenceTypeName, int depth, IEnumerable<object> graphPath)
-        {
-            var graph = "";
-
-            var dingsType = dings.GetType();
-
-            if (!this.TypeIsExcluded(dingsType))
-            {
-                graph += this.GetTypeString(referenceTypeName, depth, dingsType);
-
-                if ((!this.DoNotFollowType(dingsType)) && (!graphPath.Contains(dings)))
-                {
-                    string subGraph;
-                    bool handled = this._getSubGraph.For(dings, dingsType, depth, graphPath.Concat(new List<object>() { dings }), out subGraph);
-                    graph += subGraph;
-                }
+                graph += this.Draw(subGraphNode, newDepth);
             }
 
             return graph;
         }
 
-        private string GetTypeString(string referenceTypeName, int depth, Type dingsType)
+        private string GetTypeString(string referenceTypeName, int depth, Type objectType)
         {
             var depthString = "";
             if (depth > 0)
@@ -140,7 +122,8 @@ namespace TeaDriven.Graphology
             }
 
             var memberTypeString = this.GetMemberTypeString(referenceTypeName);
-            var graph = string.Format("{0} {1}{2}{3}", depthString, dingsType.Name, memberTypeString, Environment.NewLine);
+            var graph = string.Format("{0} {1}{2}{3}", depthString, objectType.Name, memberTypeString, Environment.NewLine);
+
             return graph;
         }
 
@@ -152,16 +135,111 @@ namespace TeaDriven.Graphology
 
             return memberTypeString;
         }
+    }
 
-        private bool TypeIsExcluded(Type t)
+    #endregion Facade objects
+
+    public abstract class TypeExclusionsClientBase
+    {
+        protected TypeExclusionsClientBase()
         {
-            return this._exclusionRules.Exclude.AppliesTo(t);
         }
 
-        private bool DoNotFollowType(Type t)
+        private TypeExclusions _typeExclusions = new MinimalTypeExclusions();
+
+        protected TypeExclusionsClientBase(TypeExclusions typeExclusions)
         {
-            return this._exclusionRules.DoNotFollow.AppliesTo(t);
+            if (typeExclusions == null) throw new ArgumentNullException("typeExclusions");
+
+            this.TypeExclusions = typeExclusions;
         }
+
+        private TypeExclusions TypeExclusions
+        {
+            get { return this._typeExclusions; }
+
+            set
+            {
+                this._typeExclusions.DoNotFollow = value.DoNotFollow;
+                this._typeExclusions.Exclude = value.Exclude;
+            }
+        }
+
+        protected bool TypeIsExcluded(Type t)
+        {
+            return this._typeExclusions.Exclude.AppliesTo(t);
+        }
+
+        protected bool DoNotFollowType(Type t)
+        {
+            return this._typeExclusions.DoNotFollow.AppliesTo(t);
+        }
+    }
+
+    #region IGetObjectGraph
+
+    public interface IGetObjectGraph
+    {
+        GraphNode For(object currentObject, Type referenceType, string referenceName, IEnumerable<object> graphPath);
+    }
+
+    public class LazyGetObjectGraph : IGetObjectGraph
+    {
+        public IGetObjectGraph GetObjectGraph { get; set; }
+
+        #region IGetObjectGraph Members
+
+        public GraphNode For(object currentObject, Type referenceType, string referenceName, IEnumerable<object> graphPath)
+        {
+            return this.GetObjectGraph.For(currentObject, referenceType, referenceName, graphPath);
+        }
+
+        #endregion IGetObjectGraph Members
+    }
+
+    public class DefaultGetObjectGraph : TypeExclusionsClientBase, IGetObjectGraph
+    {
+        private readonly IGetSubGraph _getSubGraph;
+
+        public DefaultGetObjectGraph(IGetSubGraph getSubGraph, TypeExclusions typeExclusions)
+            : base(typeExclusions)
+        {
+            if (getSubGraph == null) throw new ArgumentNullException("getSubGraph");
+
+            this._getSubGraph = getSubGraph;
+        }
+
+        public DefaultGetObjectGraph(IGetSubGraph getSubGraph)
+        {
+            if (getSubGraph == null) throw new ArgumentNullException("getSubGraph");
+
+            this._getSubGraph = getSubGraph;
+        }
+
+        #region IGetObjectGraph Members
+
+        public GraphNode For(object currentObject, Type referenceType, string referenceName, IEnumerable<object> graphPath)
+        {
+            GraphNode node = new GraphNode()
+                             {
+                                 ReferenceType = referenceType,
+                                 ObjectType = currentObject.GetType(),
+                                 ReferenceName = referenceName,
+                             };
+
+            if ((!graphPath.Contains(currentObject)) && (!DoNotFollowType(currentObject.GetType())))
+            {
+                IList<GraphNode> subGraph = new List<GraphNode>();
+                bool handled = this._getSubGraph.For(currentObject, graphPath.Concat(new List<object>() { currentObject }),
+                                                                   out subGraph);
+
+                node.SubGraph = subGraph;
+            }
+
+            return node;
+        }
+
+        #endregion IGetObjectGraph Members
     }
 
     #endregion IGetObjectGraph
@@ -170,67 +248,79 @@ namespace TeaDriven.Graphology
 
     public interface IGetSubGraph
     {
-        bool For(object dings, Type dingsType, int depth, IEnumerable<object> graphPath, out string graph);
+        bool For(object currentObject, IEnumerable<object> graphPath, out IList<GraphNode> subGraph);
     }
 
     public class CompositeGetSubGraph : IGetSubGraph
     {
-        private readonly IEnumerable<IGetSubGraph> _getSubGraphs;
+        private readonly IEnumerable<IGetSubGraph> _getSubGraphRepresentations;
 
-        public CompositeGetSubGraph(IEnumerable<IGetSubGraph> getSubGraphs)
+        public CompositeGetSubGraph(IEnumerable<IGetSubGraph> getSubGraphRepresentations)
         {
-            if (getSubGraphs == null) throw new ArgumentNullException("getSubGraphs");
-
-            this._getSubGraphs = getSubGraphs;
+            _getSubGraphRepresentations = getSubGraphRepresentations;
         }
 
-        public bool For(object dings, Type dingsType, int depth, IEnumerable<object> graphPath, out string graph)
+        #region IGetSubGraph Members
+
+        public bool For(object currentObject, IEnumerable<object> graphPath, out IList<GraphNode> subGraph)
         {
-            graph = "";
+            List<GraphNode> localSubGraph = new List<GraphNode>();
 
             bool handled = false;
 
-            foreach (IGetSubGraph getSubGraph in this._getSubGraphs)
+            foreach (IGetSubGraph getSubGraph in this._getSubGraphRepresentations)
             {
-                handled = getSubGraph.For(dings, dingsType, depth, graphPath, out graph);
+                IList<GraphNode> subSubGraph;
 
-                if (handled)
-                {
-                    // TODO: Unbreak
-                    break;
-                }
+                handled = getSubGraph.For(currentObject, graphPath, out subSubGraph);
+
+                localSubGraph.AddRange(subSubGraph);
+
+                //if (handled)
+                //{
+                //    // TODO: Unbreak
+                //    break;
+                //}
             }
+
+            subGraph = localSubGraph;
 
             return handled;
         }
+
+        #endregion IGetSubGraph Members
     }
 
-    public class EnumerableGetSubGraph : IGetSubGraph
+    public class EnumerableGetSubGraph : TypeExclusionsClientBase, IGetSubGraph
     {
         private readonly IGetObjectGraph _getObjectGraph;
 
         public EnumerableGetSubGraph(IGetObjectGraph getObjectGraph)
         {
-            _getObjectGraph = getObjectGraph;
+            this._getObjectGraph = getObjectGraph;
+        }
+
+        public EnumerableGetSubGraph(IGetObjectGraph getObjectGraph, TypeExclusions typeExclusions)
+            : base(typeExclusions)
+        {
+            this._getObjectGraph = getObjectGraph;
         }
 
         #region IGetSubGraph Members
 
-        public bool For(object dings, Type dingsType, int depth, IEnumerable<object> graphPath, out string graph)
+        public bool For(object currentObject, IEnumerable<object> graphPath, out IList<GraphNode> subGraph)
         {
-            graph = "";
+            subGraph = new List<GraphNode>();
 
             bool handled = false;
 
-            var ien = dingsType.Implements<IEnumerable>();
+            var enumerable = currentObject as IEnumerable;
 
-            if (ien)
+            if (null != enumerable)
             {
-                var ienu = dings as IEnumerable;
-
-                foreach (var lol in ienu)
+                foreach (var item in enumerable)
                 {
-                    graph += this._getObjectGraph.For(lol, "", depth + 1, graphPath);
+                    subGraph.Add(this._getObjectGraph.For(item, typeof(object), "Item", graphPath));
                 }
 
                 handled = true;
@@ -242,174 +332,189 @@ namespace TeaDriven.Graphology
         #endregion IGetSubGraph Members
     }
 
-    public class DefaultGetSubGraph : IGetSubGraph
+    public class DefaultGetSubGraph : TypeExclusionsClientBase, IGetSubGraph
     {
         private readonly IGetObjectGraph _getObjectGraph;
 
         public DefaultGetSubGraph(IGetObjectGraph getObjectGraph)
         {
-            _getObjectGraph = getObjectGraph;
+            this._getObjectGraph = getObjectGraph;
         }
 
-        #region IGetSubGraph Members
-
-        public bool For(object dings, Type dingsType, int depth, IEnumerable<object> graphPath, out string graph)
+        public DefaultGetSubGraph(IGetObjectGraph getObjectGraph, TypeExclusions typeExclusions)
+            : base(typeExclusions)
         {
-            graph = "";
+            this._getObjectGraph = getObjectGraph;
+        }
 
-            var fields = dingsType.GetFields(BindingFlags.Instance | BindingFlags.NonPublic);
+        public bool For(object currentObject, IEnumerable<object> graphPath, out IList<GraphNode> subGraph)
+        {
+            subGraph = new List<GraphNode>();
 
-            var fieldValues = fields.Select(fi => new { TypeName = fi.FieldType.Name, FieldValue = dings.GetFieldValue(fi.Name) });
+            var type = currentObject.GetType();
+
+            var fields = type.GetFields(BindingFlags.Instance | BindingFlags.NonPublic);
+
+            var fieldValues =
+                fields.Select(
+                    fi => new { ReferenceType = fi.FieldType, ReferenceName = fi.Name, FieldValue = currentObject.GetFieldValue(fi.Name) });
 
             foreach (var fieldValue in fieldValues.Where(v => null != v.FieldValue))
             {
-                graph += this._getObjectGraph.For(fieldValue.FieldValue, fieldValue.TypeName, depth + 1, graphPath);
+                if (!this.TypeIsExcluded(fieldValue.ReferenceType))
+                {
+                    subGraph.Add(this._getObjectGraph.For(fieldValue.FieldValue, fieldValue.ReferenceType, fieldValue.ReferenceName,
+                                                          graphPath));
+                }
             }
 
             return true;
         }
-
-        #endregion IGetSubGraph Members
     }
 
     #endregion IGetSubGraph
 
-    public class Graphologist
+    public class GraphNode
     {
-        private readonly IGetObjectGraph _getObjectGraph;
+        public Type ReferenceType { get; set; }
 
-        /// <summary>
-        /// Creates a new instance of the Graphologist class
-        /// </summary>
-        public Graphologist(IGetObjectGraph getObjectGraph)
+        public Type ObjectType { get; set; }
+
+        public string ReferenceName { get; set; }
+
+        private IEnumerable<GraphNode> _subGraph = new List<GraphNode>();
+
+        public IEnumerable<GraphNode> SubGraph
         {
-            _getObjectGraph = getObjectGraph;
+            get { return this._subGraph; }
+            set { this._subGraph = value; }
         }
 
-        public string Graph(object dings)
+        public override string ToString()
         {
-            return this._getObjectGraph.For(dings, "", 0, new List<object>());
+            // This is only to see stuff more easily in the debug window; it is too unflexible for practical use
+            return string.Format("{0} : {1}", ObjectType.Name, ReferenceType.Name);
         }
     }
 
     #region Exclusion Rules
 
-    public class ExclusionRulesSet
+    public class TypeExclusions
     {
-        protected IExclusionRule _excludeFixed = new EmptyExclusionRule();
-        private IExclusionRule _exclude = new EmptyExclusionRule();
+        protected ITypeExclusion _excludeFixed = new EmptyTypeExclusion();
+        private ITypeExclusion _exclude = new EmptyTypeExclusion();
 
-        public IExclusionRule Exclude
+        public ITypeExclusion Exclude
         {
             get { return this._exclude; }
             set
             {
                 if (value == null) throw new ArgumentNullException("Exclusion");
 
-                this._exclude = new CompositeExclusionRule(this._excludeFixed, value);
+                this._exclude = new CompositeTypeExclusion(this._excludeFixed, value);
             }
         }
 
-        protected IExclusionRule _doNotFollowFixed = new EmptyExclusionRule();
-        private IExclusionRule _doNotFollow = new EmptyExclusionRule();
+        protected ITypeExclusion _doNotFollowFixed = new EmptyTypeExclusion();
+        private ITypeExclusion _doNotFollow = new EmptyTypeExclusion();
 
-        public IExclusionRule DoNotFollow
+        public ITypeExclusion DoNotFollow
         {
             get { return this._doNotFollow; }
             set
             {
                 if (value == null) throw new ArgumentNullException("DoNotFollow");
 
-                this._doNotFollow = new CompositeExclusionRule(this._doNotFollowFixed, value);
+                this._doNotFollow = new CompositeTypeExclusion(this._doNotFollowFixed, value);
             }
         }
     }
 
-    public class MinimalExclusionRulesSet : ExclusionRulesSet
+    public class MinimalTypeExclusions : TypeExclusions
     {
-        public MinimalExclusionRulesSet()
+        public MinimalTypeExclusions()
         {
-            this._doNotFollowFixed = new ExactNamespaceExclusionRule("System");
+            this._doNotFollowFixed = new ExactNamespaceTypeExclusion("System");
         }
     }
 
-    public class TestExclusionRulesSet : ExclusionRulesSet
+    public class TestTypeExclusions : TypeExclusions
     {
-        public TestExclusionRulesSet()
+        public TestTypeExclusions()
         {
-            this._doNotFollowFixed = new RootNamespaceExclusionRule("Castle.Proxies");
+            this._doNotFollowFixed = new RootNamespaceTypeExclusion("Castle.Proxies");
         }
     }
 
-    public interface IExclusionRule
+    public interface ITypeExclusion
     {
         bool AppliesTo(Type type);
     }
 
-    public class EmptyExclusionRule : IExclusionRule
+    public class EmptyTypeExclusion : ITypeExclusion
     {
-        #region IExclusionRule Members
+        #region TypeExclusion Members
 
         public bool AppliesTo(Type type)
         {
             return false;
         }
 
-        #endregion IExclusionRule Members
+        #endregion TypeExclusion Members
     }
 
-    public class CompositeExclusionRule : IExclusionRule
+    public class CompositeTypeExclusion : ITypeExclusion
     {
-        private readonly IEnumerable<IExclusionRule> _exclusionRules;
+        private readonly IEnumerable<ITypeExclusion> _exclusionRules;
 
-        public CompositeExclusionRule(IEnumerable<IExclusionRule> exclusionRules)
+        public CompositeTypeExclusion(IEnumerable<ITypeExclusion> exclusionRules)
         {
             if (exclusionRules == null) throw new ArgumentNullException("exclusionRules");
 
             _exclusionRules = exclusionRules;
         }
 
-        public CompositeExclusionRule(params IExclusionRule[] exclusionRules)
+        public CompositeTypeExclusion(params ITypeExclusion[] exclusionRules)
         {
             if (exclusionRules == null) throw new ArgumentNullException("exclusionRules");
 
             _exclusionRules = exclusionRules;
         }
 
-        #region IExclusionRule Members
+        #region TypeExclusion Members
 
         public bool AppliesTo(Type type)
         {
             return this._exclusionRules.Any(rule => rule.AppliesTo(type));
         }
 
-        #endregion IExclusionRule Members
+        #endregion TypeExclusion Members
     }
 
-    public class FuncExclusionRule : IExclusionRule
+    public class FuncTypeExclusion : ITypeExclusion
     {
         private readonly Func<Type, bool> _rule;
 
-        public FuncExclusionRule(Func<Type, bool> rule)
+        public FuncTypeExclusion(Func<Type, bool> rule)
         {
             if (rule == null) throw new ArgumentNullException("rule");
 
             _rule = rule;
         }
 
-        #region IExclusionRule Members
+        #region TypeExclusion Members
 
         public bool AppliesTo(Type type)
         {
             return this._rule(type);
         }
 
-        #endregion IExclusionRule Members
+        #endregion TypeExclusion Members
     }
 
-    public class ExactNamespaceExclusionRule : FuncExclusionRule
+    public class ExactNamespaceTypeExclusion : FuncTypeExclusion
     {
-        public ExactNamespaceExclusionRule(string @namespace)
+        public ExactNamespaceTypeExclusion(string @namespace)
             : base(type =>
                    {
                        @namespace = Regex.Replace(@namespace, @"\.$", "");
@@ -420,9 +525,9 @@ namespace TeaDriven.Graphology
                    }) { }
     }
 
-    public class RootNamespaceExclusionRule : FuncExclusionRule
+    public class RootNamespaceTypeExclusion : FuncTypeExclusion
     {
-        public RootNamespaceExclusionRule(string @namespace)
+        public RootNamespaceTypeExclusion(string @namespace)
             : base(type =>
                    {
                        @namespace = Regex.Replace(@namespace, @"\.$", "");
@@ -431,32 +536,32 @@ namespace TeaDriven.Graphology
                    }) { }
     }
 
-    public class ConcreteTypesExclusionRule : IExclusionRule
+    public class ConcreteTypeExclusion : ITypeExclusion
     {
         private readonly IEnumerable<Type> _types;
 
-        public ConcreteTypesExclusionRule(params Type[] types)
+        public ConcreteTypeExclusion(params Type[] types)
         {
             if (types == null) throw new ArgumentNullException("types");
 
             _types = types;
         }
 
-        public ConcreteTypesExclusionRule(IEnumerable<Type> types)
+        public ConcreteTypeExclusion(IEnumerable<Type> types)
         {
             if (types == null) throw new ArgumentNullException("types");
 
             _types = types;
         }
 
-        #region IExclusionRule Members
+        #region TypeExclusion Members
 
         public bool AppliesTo(Type type)
         {
             return this._types.Contains(type);
         }
 
-        #endregion IExclusionRule Members
+        #endregion TypeExclusion Members
     }
 
     #endregion Exclusion Rules
