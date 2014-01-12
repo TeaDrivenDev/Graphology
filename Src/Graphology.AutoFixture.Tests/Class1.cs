@@ -26,14 +26,13 @@ namespace TeaDriven.Graphology.AutoFixture.Tests
         public void B()
         {
             // Arrange
-            var sut = new DefaultGetObjectGraphRepresentation(new MinimalExclusionRulesSet());
-            var graphVisualizer = new GraphVisualizer();
-
             var fixture = new Fixture();
 
+            var createGraphologist = new CreateNewGraphologist();
+            var graphologist = createGraphologist.Now();
+
             // Act
-            var graph = sut.For(fixture, typeof(IFixture), "root", new List<object>());
-            var graphString = graphVisualizer.Draw(graph);
+            var graph = graphologist.Graph(fixture);
 
             // Assert
         }

@@ -1,5 +1,6 @@
 ﻿using Fasterflect;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -28,8 +29,75 @@ namespace TeaDriven.Graphology
         }
     }
 
-    public class NullGraphNode : GraphNode
+    public class CreateNewGraphologist
     {
+        private bool _showDependencyTypes = true;
+        private ExclusionRulesSet _exclusionRules = new ExclusionRulesSet();
+
+        public bool ShowDependencyTypes
+        {
+            get { return this._showDependencyTypes; }
+            set { this._showDependencyTypes = value; }
+        }
+
+        public ExclusionRulesSet ExclusionRules
+        {
+            get { return this._exclusionRules; }
+            set { this._exclusionRules = value; }
+        }
+
+        public NewGraphologist Now()
+        {
+            LazyGetObjectGraphRepresentation getObjectGraph = new LazyGetObjectGraphRepresentation();
+
+            IGetSubGraphRepresentation getSubGraph = new CompositeGetSubGraphRepresentation(new List<IGetSubGraphRepresentation>()
+                                                                {
+                                                                    new EnumerableGetSubGraphRepresentation(getObjectGraph, this.ExclusionRules),
+                                                                    new DefaultGetSubGraphRepresentation(getObjectGraph, this.ExclusionRules)
+                                                                });
+
+            getObjectGraph.GetObjectGraphRepresentation = new DefaultGetObjectGraphRepresentation(getSubGraph, this.ExclusionRules);
+
+            GraphTraversal traversal = new GraphTraversal(getObjectGraph);
+
+            GraphVisualizer visualizer = new GraphVisualizer();
+
+            NewGraphologist graphologist = new NewGraphologist(traversal, visualizer);
+
+            return graphologist;
+        }
+    }
+
+    public class NewGraphologist
+    {
+        private readonly GraphTraversal _traversal;
+        private readonly GraphVisualizer _visualizer;
+
+        public NewGraphologist(GraphTraversal traversal, GraphVisualizer visualizer)
+        {
+            _traversal = traversal;
+            _visualizer = visualizer;
+        }
+
+        public string Graph(object targetObject)
+        {
+            return this._visualizer.Draw(this._traversal.Traverse(targetObject));
+        }
+    }
+
+    public class GraphTraversal
+    {
+        private readonly IGetObjectGraphRepresentation _getObjectGraphRepresentation;
+
+        public GraphTraversal(IGetObjectGraphRepresentation getObjectGraphRepresentation)
+        {
+            _getObjectGraphRepresentation = getObjectGraphRepresentation;
+        }
+
+        public GraphNode Traverse(object targetObject)
+        {
+            return this._getObjectGraphRepresentation.For(targetObject, targetObject.GetType(), "root", new List<object>());
+        }
     }
 
     public interface IGetObjectGraphRepresentation
@@ -37,28 +105,33 @@ namespace TeaDriven.Graphology
         GraphNode For(object currentObject, Type referenceType, string referenceName, IEnumerable<object> graphPath);
     }
 
-    public class DefaultGetObjectGraphRepresentation : IGetObjectGraphRepresentation
+    public class LazyGetObjectGraphRepresentation : IGetObjectGraphRepresentation
     {
-        private ExclusionRulesSet _exclusionRules = new MinimalExclusionRulesSet();
+        public IGetObjectGraphRepresentation GetObjectGraphRepresentation { get; set; }
 
-        public DefaultGetObjectGraphRepresentation(ExclusionRulesSet exclusionRules)
+        #region IGetObjectGraphRepresentation Members
+
+        public GraphNode For(object currentObject, Type referenceType, string referenceName, IEnumerable<object> graphPath)
         {
-            this.ExclusionRules = exclusionRules;
+            return this.GetObjectGraphRepresentation.For(currentObject, referenceType, referenceName, graphPath);
         }
 
-        private ExclusionRulesSet ExclusionRules
-        {
-            get { return this._exclusionRules; }
+        #endregion IGetObjectGraphRepresentation Members
+    }
 
-            set
-            {
-                this._exclusionRules.DoNotFollow = value.DoNotFollow;
-                this._exclusionRules.Exclude = value.Exclude;
-            }
+    public class DefaultGetObjectGraphRepresentation : ExclusionRuleClientBase, IGetObjectGraphRepresentation
+    {
+        private readonly IGetSubGraphRepresentation _getSubGraphRepresentation;
+
+        public DefaultGetObjectGraphRepresentation(IGetSubGraphRepresentation getSubGraphRepresentation, ExclusionRulesSet exclusionRules)
+            : base(exclusionRules)
+        {
+            _getSubGraphRepresentation = getSubGraphRepresentation;
         }
 
-        public DefaultGetObjectGraphRepresentation()
+        public DefaultGetObjectGraphRepresentation(IGetSubGraphRepresentation getSubGraphRepresentation)
         {
+            _getSubGraphRepresentation = getSubGraphRepresentation;
         }
 
         #region IGetObjectGraphRepresentation Members
@@ -75,7 +148,7 @@ namespace TeaDriven.Graphology
             if ((!graphPath.Contains(currentObject)) && (!DoNotFollowType(currentObject.GetType())))
             {
                 IList<GraphNode> subGraph = new List<GraphNode>();
-                bool handled = GetSubGraph(currentObject, graphPath.Concat(new List<object>() { currentObject }), out subGraph);
+                bool handled = this._getSubGraphRepresentation.For(currentObject, graphPath.Concat(new List<object>() { currentObject }), out subGraph);
 
                 node.SubGraph = subGraph;
             }
@@ -83,7 +156,146 @@ namespace TeaDriven.Graphology
             return node;
         }
 
-        private bool GetSubGraph(object currentObject, IEnumerable<object> graphPath, out IList<GraphNode> subGraph)
+        #endregion IGetObjectGraphRepresentation Members
+    }
+
+    public abstract class ExclusionRuleClientBase
+    {
+        protected ExclusionRuleClientBase()
+        {
+        }
+
+        private ExclusionRulesSet _exclusionRules = new MinimalExclusionRulesSet();
+
+        protected ExclusionRuleClientBase(ExclusionRulesSet exclusionRules)
+        {
+            this.ExclusionRules = exclusionRules;
+        }
+
+        private ExclusionRulesSet ExclusionRules
+        {
+            get { return this._exclusionRules; }
+
+            set
+            {
+                this._exclusionRules.DoNotFollow = value.DoNotFollow;
+                this._exclusionRules.Exclude = value.Exclude;
+            }
+        }
+
+        protected bool TypeIsExcluded(Type t)
+        {
+            return this._exclusionRules.Exclude.AppliesTo(t);
+        }
+
+        protected bool DoNotFollowType(Type t)
+        {
+            return this._exclusionRules.DoNotFollow.AppliesTo(t);
+        }
+    }
+
+    public interface IGetSubGraphRepresentation
+    {
+        bool For(object currentObject, IEnumerable<object> graphPath, out IList<GraphNode> subGraph);
+    }
+
+    public class CompositeGetSubGraphRepresentation : IGetSubGraphRepresentation
+    {
+        private readonly IEnumerable<IGetSubGraphRepresentation> _getSubGraphRepresentations;
+
+        public CompositeGetSubGraphRepresentation(IEnumerable<IGetSubGraphRepresentation> getSubGraphRepresentations)
+        {
+            _getSubGraphRepresentations = getSubGraphRepresentations;
+        }
+
+        #region IGetSubGraphRepresentation Members
+
+        public bool For(object currentObject, IEnumerable<object> graphPath, out IList<GraphNode> subGraph)
+        {
+            List<GraphNode> localSubGraph = new List<GraphNode>();
+
+            bool handled = false;
+
+            foreach (IGetSubGraphRepresentation getSubGraph in this._getSubGraphRepresentations)
+            {
+                IList<GraphNode> subSubGraph;
+
+                handled = getSubGraph.For(currentObject, graphPath, out subSubGraph);
+
+                localSubGraph.AddRange(subSubGraph);
+
+                //if (handled)
+                //{
+                //    // TODO: Unbreak
+                //    break;
+                //}
+            }
+
+            subGraph = localSubGraph;
+
+            return handled;
+        }
+
+        #endregion IGetSubGraphRepresentation Members
+    }
+
+    public class EnumerableGetSubGraphRepresentation : ExclusionRuleClientBase, IGetSubGraphRepresentation
+    {
+        private readonly IGetObjectGraphRepresentation _getObjectGraphRepresentation;
+
+        public EnumerableGetSubGraphRepresentation(IGetObjectGraphRepresentation getObjectGraphRepresentation)
+        {
+            _getObjectGraphRepresentation = getObjectGraphRepresentation;
+        }
+
+        public EnumerableGetSubGraphRepresentation(IGetObjectGraphRepresentation getObjectGraphRepresentation, ExclusionRulesSet exclusionRules)
+            : base(exclusionRules)
+        {
+            _getObjectGraphRepresentation = getObjectGraphRepresentation;
+        }
+
+        #region IGetSubGraphRepresentation Members
+
+        public bool For(object currentObject, IEnumerable<object> graphPath, out IList<GraphNode> subGraph)
+        {
+            subGraph = new List<GraphNode>();
+
+            bool handled = false;
+
+            var enumerable = currentObject as IEnumerable;
+
+            if (null != enumerable)
+            {
+                foreach (var item in enumerable)
+                {
+                    subGraph.Add(this._getObjectGraphRepresentation.For(item, typeof(object), "Item", graphPath));
+                }
+
+                handled = true;
+            }
+
+            return handled;
+        }
+
+        #endregion IGetSubGraphRepresentation Members
+    }
+
+    public class DefaultGetSubGraphRepresentation : ExclusionRuleClientBase, IGetSubGraphRepresentation
+    {
+        private readonly IGetObjectGraphRepresentation _getObjectGraphRepresentation;
+
+        public DefaultGetSubGraphRepresentation(IGetObjectGraphRepresentation getObjectGraphRepresentation)
+        {
+            _getObjectGraphRepresentation = getObjectGraphRepresentation;
+        }
+
+        public DefaultGetSubGraphRepresentation(IGetObjectGraphRepresentation getObjectGraphRepresentation, ExclusionRulesSet exclusionRules)
+            : base(exclusionRules)
+        {
+            _getObjectGraphRepresentation = getObjectGraphRepresentation;
+        }
+
+        public bool For(object currentObject, IEnumerable<object> graphPath, out IList<GraphNode> subGraph)
         {
             subGraph = new List<GraphNode>();
 
@@ -97,23 +309,11 @@ namespace TeaDriven.Graphology
             {
                 if (!this.TypeIsExcluded(fieldValue.ReferenceType))
                 {
-                    subGraph.Add(this.For(fieldValue.FieldValue, fieldValue.ReferenceType, fieldValue.ReferenceName, graphPath));
+                    subGraph.Add(this._getObjectGraphRepresentation.For(fieldValue.FieldValue, fieldValue.ReferenceType, fieldValue.ReferenceName, graphPath));
                 }
             }
 
             return true;
-        }
-
-        #endregion IGetObjectGraphRepresentation Members
-
-        private bool TypeIsExcluded(Type t)
-        {
-            return this._exclusionRules.Exclude.AppliesTo(t);
-        }
-
-        private bool DoNotFollowType(Type t)
-        {
-            return this._exclusionRules.DoNotFollow.AppliesTo(t);
         }
     }
 
