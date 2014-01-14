@@ -2,6 +2,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
@@ -65,6 +66,19 @@ namespace TeaDriven.Graphology
         public string Graph(object targetObject)
         {
             return this._visualizer.Draw(this._traversal.Traverse(targetObject));
+        }
+    }
+
+    public static class GraphologistExtensions
+    {
+        public static void WriteGraph(this Graphologist graphologist, object targetObject, string graphName, string projectPath)
+        {
+            var currentDir = Directory.GetCurrentDirectory();
+
+            var fileName = string.Format("{0}_Graph.txt", graphName);
+            var fullFilePath = Path.Combine(currentDir, Path.Combine(Path.Combine(@"..\..", projectPath), fileName));
+
+            File.WriteAllText(fullFilePath, graphologist.Graph(targetObject));
         }
     }
 
