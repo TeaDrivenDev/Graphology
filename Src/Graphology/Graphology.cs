@@ -71,7 +71,7 @@ namespace TeaDriven.Graphology
 
     public static class GraphologistExtensions
     {
-        public static void WriteGraph(this Graphologist graphologist, object targetObject, string graphName, string projectPath)
+        public static void WriteGraph(this Graphologist graphologist, object targetObject, string projectPath, string graphName)
         {
             var currentDir = Directory.GetCurrentDirectory();
 
