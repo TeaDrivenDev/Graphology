@@ -120,11 +120,11 @@ namespace TeaDriven.Graphology
         {
             string graph = this.GetTypeString(graphNode.ReferenceType, depth, graphNode.ObjectType);
 
+            depth++;
+
             foreach (GraphNode subGraphNode in graphNode.SubGraph)
             {
-                int newDepth = depth + 1;
-
-                graph += this.Draw(subGraphNode, newDepth);
+                graph += this.Draw(subGraphNode, depth);
             }
 
             return graph;
