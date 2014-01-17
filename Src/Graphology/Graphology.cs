@@ -33,12 +33,12 @@ namespace TeaDriven.Graphology
             LazyGetObjectGraph getObjectGraph = new LazyGetObjectGraph();
 
             IGetSubGraph getSubGraph = new CompositeGetSubGraph(new List<IGetSubGraph>()
-                                                                                            {
-                                                                                                new EnumerableGetSubGraph(
-                                                                                                    getObjectGraph, this.TypeExclusions),
-                                                                                                new DefaultGetSubGraph(
-                                                                                                    getObjectGraph, this.TypeExclusions)
-                                                                                            });
+                                                                {
+                                                                    new EnumerableGetSubGraph(
+                                                                        getObjectGraph, this.TypeExclusions),
+                                                                    new DefaultGetSubGraph(
+                                                                        getObjectGraph, this.TypeExclusions)
+                                                                });
 
             getObjectGraph.GetObjectGraph = new DefaultGetObjectGraph(getSubGraph, this.TypeExclusions);
 
@@ -65,7 +65,9 @@ namespace TeaDriven.Graphology
 
         public string Graph(object targetObject)
         {
-            return this._visualizer.Draw(this._traversal.Traverse(targetObject));
+            string graph = this._visualizer.Draw(this._traversal.Traverse(targetObject));
+
+            return graph;
         }
     }
 
@@ -93,7 +95,9 @@ namespace TeaDriven.Graphology
 
         public GraphNode Traverse(object targetObject)
         {
-            return this._getObjectGraph.For(targetObject, targetObject.GetType(), "root", new List<object>());
+            GraphNode graph = this._getObjectGraph.For(targetObject, targetObject.GetType(), "root", new List<object>());
+
+            return graph;
         }
     }
 
@@ -159,34 +163,27 @@ namespace TeaDriven.Graphology
         {
         }
 
-        private TypeExclusions _typeExclusions = new MinimalTypeExclusions();
+        private readonly TypeExclusions _typeExclusions = new TypeExclusions();
 
         protected TypeExclusionsClientBase(TypeExclusions typeExclusions)
         {
             if (typeExclusions == null) throw new ArgumentNullException("typeExclusions");
 
-            this.TypeExclusions = typeExclusions;
-        }
-
-        private TypeExclusions TypeExclusions
-        {
-            get { return this._typeExclusions; }
-
-            set
-            {
-                this._typeExclusions.DoNotFollow = value.DoNotFollow;
-                this._typeExclusions.Exclude = value.Exclude;
-            }
+            this._typeExclusions.Add(typeExclusions);
         }
 
         protected bool TypeIsExcluded(Type t)
         {
-            return this._typeExclusions.Exclude.AppliesTo(t);
+            bool applies = this._typeExclusions.Exclude.AppliesTo(t);
+
+            return applies;
         }
 
         protected bool DoNotFollowType(Type t)
         {
-            return this._typeExclusions.DoNotFollow.AppliesTo(t);
+            bool applies = this._typeExclusions.DoNotFollow.AppliesTo(t);
+
+            return applies;
         }
     }
 
@@ -205,7 +202,9 @@ namespace TeaDriven.Graphology
 
         public GraphNode For(object currentObject, Type referenceType, string referenceName, IEnumerable<object> graphPath)
         {
-            return this.GetObjectGraph.For(currentObject, referenceType, referenceName, graphPath);
+            GraphNode graph = this.GetObjectGraph.For(currentObject, referenceType, referenceName, graphPath);
+
+            return graph;
         }
 
         #endregion IGetObjectGraph Members
@@ -234,6 +233,11 @@ namespace TeaDriven.Graphology
 
         public GraphNode For(object currentObject, Type referenceType, string referenceName, IEnumerable<object> graphPath)
         {
+            if (currentObject == null) throw new ArgumentNullException("currentObject");
+            if (referenceType == null) throw new ArgumentNullException("referenceType");
+            if (referenceName == null) throw new ArgumentNullException("referenceName");
+            if (graphPath == null) throw new ArgumentNullException("graphPath");
+
             GraphNode node = new GraphNode()
                              {
                                  ReferenceType = referenceType,
@@ -334,7 +338,10 @@ namespace TeaDriven.Graphology
             {
                 foreach (var item in enumerable)
                 {
-                    subGraph.Add(this._getObjectGraph.For(item, typeof(object), "Item", graphPath));
+                    if (null != item)
+                    {
+                        subGraph.Add(this._getObjectGraph.For(item, typeof(object), "Item", graphPath));
+                    }
                 }
 
                 handled = true;
@@ -407,7 +414,9 @@ namespace TeaDriven.Graphology
         public override string ToString()
         {
             // This is only to see stuff more easily in the debug window; it is too unflexible for practical use
-            return string.Format("{0} : {1}", ObjectType.Name, ReferenceType.Name);
+            string text = string.Format("{0} : {1}", ObjectType.Name, ReferenceType.Name);
+
+            return text;
         }
     }
 
@@ -416,11 +425,17 @@ namespace TeaDriven.Graphology
     public class TypeExclusions
     {
         protected ITypeExclusion _excludeFixed = new EmptyTypeExclusion();
-        private ITypeExclusion _exclude = new EmptyTypeExclusion();
+        private ITypeExclusion _exclude;
 
         public ITypeExclusion Exclude
         {
-            get { return this._exclude; }
+            get
+            {
+                ITypeExclusion value = this._exclude ?? this._excludeFixed;
+
+                return value;
+            }
+
             set
             {
                 if (value == null) throw new ArgumentNullException("Exclusion");
@@ -430,17 +445,28 @@ namespace TeaDriven.Graphology
         }
 
         protected ITypeExclusion _doNotFollowFixed = new EmptyTypeExclusion();
-        private ITypeExclusion _doNotFollow = new EmptyTypeExclusion();
+        private ITypeExclusion _doNotFollow;
 
         public ITypeExclusion DoNotFollow
         {
-            get { return this._doNotFollow; }
+            get
+            {
+                ITypeExclusion value = this._doNotFollow ?? this._doNotFollowFixed;
+                return value;
+            }
+
             set
             {
                 if (value == null) throw new ArgumentNullException("DoNotFollow");
 
                 this._doNotFollow = new CompositeTypeExclusion(this._doNotFollowFixed, value);
             }
+        }
+
+        public void Add(TypeExclusions additionalExclusions)
+        {
+            this.Exclude = additionalExclusions.Exclude;
+            this.DoNotFollow = additionalExclusions.DoNotFollow;
         }
     }
 
@@ -479,30 +505,38 @@ namespace TeaDriven.Graphology
 
     public class CompositeTypeExclusion : ITypeExclusion
     {
-        private readonly IEnumerable<ITypeExclusion> _exclusionRules;
+        private readonly IEnumerable<ITypeExclusion> _exclusions;
 
-        public CompositeTypeExclusion(IEnumerable<ITypeExclusion> exclusionRules)
+        public CompositeTypeExclusion(IEnumerable<ITypeExclusion> exclusions)
         {
-            if (exclusionRules == null) throw new ArgumentNullException("exclusionRules");
+            if (exclusions == null) throw new ArgumentNullException("exclusions");
 
-            _exclusionRules = exclusionRules;
+            this._exclusions = exclusions;
         }
 
-        public CompositeTypeExclusion(params ITypeExclusion[] exclusionRules)
+        public CompositeTypeExclusion(params ITypeExclusion[] exclusions)
         {
-            if (exclusionRules == null) throw new ArgumentNullException("exclusionRules");
+            if (exclusions == null) throw new ArgumentNullException("exclusions");
 
-            _exclusionRules = exclusionRules;
+            this._exclusions = exclusions;
         }
 
-        #region TypeExclusion Members
+        #region ITypeExclusion Members
 
         public bool AppliesTo(Type type)
         {
-            return this._exclusionRules.Any(rule => rule.AppliesTo(type));
+            return this._exclusions.Any(rule => rule.AppliesTo(type));
         }
 
-        #endregion TypeExclusion Members
+        #endregion ITypeExclusion Members
+
+        public IEnumerable<ITypeExclusion> TypeExclusions
+        {
+            get
+            {
+                return this._exclusions;
+            }
+        }
     }
 
     public class FuncTypeExclusion : ITypeExclusion
@@ -528,26 +562,48 @@ namespace TeaDriven.Graphology
 
     public class ExactNamespaceTypeExclusion : FuncTypeExclusion
     {
+        private readonly string _ns;
+
         public ExactNamespaceTypeExclusion(string @namespace)
             : base(type =>
                    {
                        @namespace = Regex.Replace(@namespace, @"\.$", "");
 
-                       Regex rx = new Regex(string.Format(@"^{0}.[^\.]*", @namespace));
+                       Regex rx = new Regex(string.Format(@"^{0}.[^\.]*$", @namespace));
+                       bool applies = rx.IsMatch(type.FullName);
 
-                       return rx.IsMatch(type.FullName);
-                   }) { }
+                       return applies;
+                   })
+        {
+            _ns = @namespace;
+        }
+
+        public string Namespace
+        {
+            get { return this._ns; }
+        }
     }
 
     public class RootNamespaceTypeExclusion : FuncTypeExclusion
     {
+        private readonly string _ns;
+
         public RootNamespaceTypeExclusion(string @namespace)
             : base(type =>
                    {
                        @namespace = Regex.Replace(@namespace, @"\.$", "");
+                       bool applies = type.FullName.StartsWith(string.Format("{0}.", @namespace));
 
-                       return type.FullName.StartsWith(string.Format("{0}.", @namespace));
-                   }) { }
+                       return applies;
+                   })
+        {
+            _ns = @namespace;
+        }
+
+        public string Namespace
+        {
+            get { return this._ns; }
+        }
     }
 
     public class ConcreteTypeExclusion : ITypeExclusion
@@ -572,10 +628,20 @@ namespace TeaDriven.Graphology
 
         public bool AppliesTo(Type type)
         {
-            return this._types.Contains(type);
+            bool applies = this._types.Contains(type);
+
+            return applies;
         }
 
         #endregion TypeExclusion Members
+
+        public IEnumerable<Type> Types
+        {
+            get
+            {
+                return this._types;
+            }
+        }
     }
 
     #endregion Exclusion Rules
