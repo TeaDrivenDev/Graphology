@@ -328,19 +328,27 @@ namespace TeaDriven.Graphology
 
         public bool For(object currentObject, IEnumerable<object> graphPath, out IList<GraphNode> subGraph)
         {
+            if (currentObject == null) throw new ArgumentNullException("currentObject");
+            if (graphPath == null) throw new ArgumentNullException("graphPath");
+
             subGraph = new List<GraphNode>();
 
             bool handled = false;
 
-            var enumerable = currentObject as IEnumerable;
+            var type = currentObject.GetType();
 
-            if (null != enumerable)
+            var genericIenumerable =
+                type.GetInterfaces().FirstOrDefault(i => (i.IsGenericType) && (i.GetGenericTypeDefinition() == typeof(IEnumerable<>)));
+
+            if (null != genericIenumerable)
             {
-                foreach (var item in enumerable)
+                Type itemType = genericIenumerable.GetGenericArguments().First();
+
+                foreach (var item in currentObject as IEnumerable)
                 {
                     if (null != item)
                     {
-                        subGraph.Add(this._getObjectGraph.For(item, typeof(object), "Item", graphPath));
+                        subGraph.Add(this._getObjectGraph.For(item, itemType, "Item", graphPath));
                     }
                 }
 
