@@ -75,8 +75,10 @@
     <Compile Include="Conventions\AutoNSubstituteDataAttribute.cs" />
     <Compile Include="CompositeGetSubGraphTests.cs" />
     <Compile Include="Conventions\InlineAutoNSubstituteDataAttribute.cs" />
+    <Compile Include="DefaultGetObjectGraphRepresentationTests.cs" />
     <Compile Include="GraphNodeTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TypeExclusionsTests.cs" />
     <Compile Include="_InsightTests.cs" />
   </ItemGroup>
   <ItemGroup>
