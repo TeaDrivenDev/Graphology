@@ -9,14 +9,15 @@ namespace TeaDriven.Graphology.AutoFixture.Tests
         public void CanCreateGraph()
         {
             // Arrange
-            var projectPath = @"..\Graphology.AutoFixture";
-            var graphName = "Fixture";
 
             var fixture = new Fixture();
 
             var createGraphologist = new CreateGraphologist()
                                      {
                                          TypeExclusions = new MinimalTypeExclusions()
+                                         {
+                                             Exclude = new ExactNamespaceTypeExclusion("System")
+                                         }
                                      };
             var graphologist = createGraphologist.Now();
 
@@ -38,6 +39,9 @@ namespace TeaDriven.Graphology.AutoFixture.Tests
             var createGraphologist = new CreateGraphologist()
                                      {
                                          TypeExclusions = new MinimalTypeExclusions()
+                                                          {
+                                                              Exclude = new ExactNamespaceTypeExclusion("System")
+                                                          }
                                      };
             var graphologist = createGraphologist.Now();
 
