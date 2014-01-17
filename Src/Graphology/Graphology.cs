@@ -65,7 +65,9 @@ namespace TeaDriven.Graphology
 
         public string Graph(object targetObject)
         {
-            return this._visualizer.Draw(this._traversal.Traverse(targetObject));
+            string graph = this._visualizer.Draw(this._traversal.Traverse(targetObject));
+
+            return graph;
         }
     }
 
@@ -93,7 +95,9 @@ namespace TeaDriven.Graphology
 
         public GraphNode Traverse(object targetObject)
         {
-            return this._getObjectGraph.For(targetObject, targetObject.GetType(), "root", new List<object>());
+            GraphNode graph = this._getObjectGraph.For(targetObject, targetObject.GetType(), "root", new List<object>());
+
+            return graph;
         }
     }
 
@@ -181,12 +185,16 @@ namespace TeaDriven.Graphology
 
         protected bool TypeIsExcluded(Type t)
         {
-            return this._typeExclusions.Exclude.AppliesTo(t);
+            bool applies = this._typeExclusions.Exclude.AppliesTo(t);
+
+            return applies;
         }
 
         protected bool DoNotFollowType(Type t)
         {
-            return this._typeExclusions.DoNotFollow.AppliesTo(t);
+            bool applies = this._typeExclusions.DoNotFollow.AppliesTo(t);
+
+            return applies;
         }
     }
 
@@ -205,7 +213,9 @@ namespace TeaDriven.Graphology
 
         public GraphNode For(object currentObject, Type referenceType, string referenceName, IEnumerable<object> graphPath)
         {
-            return this.GetObjectGraph.For(currentObject, referenceType, referenceName, graphPath);
+            GraphNode graph = this.GetObjectGraph.For(currentObject, referenceType, referenceName, graphPath);
+
+            return graph;
         }
 
         #endregion IGetObjectGraph Members
@@ -407,7 +417,9 @@ namespace TeaDriven.Graphology
         public override string ToString()
         {
             // This is only to see stuff more easily in the debug window; it is too unflexible for practical use
-            return string.Format("{0} : {1}", ObjectType.Name, ReferenceType.Name);
+            string text = string.Format("{0} : {1}", ObjectType.Name, ReferenceType.Name);
+
+            return text;
         }
     }
 
@@ -534,8 +546,9 @@ namespace TeaDriven.Graphology
                        @namespace = Regex.Replace(@namespace, @"\.$", "");
 
                        Regex rx = new Regex(string.Format(@"^{0}.[^\.]*", @namespace));
+                       bool applies = rx.IsMatch(type.FullName);
 
-                       return rx.IsMatch(type.FullName);
+                       return applies;
                    }) { }
     }
 
@@ -545,8 +558,9 @@ namespace TeaDriven.Graphology
             : base(type =>
                    {
                        @namespace = Regex.Replace(@namespace, @"\.$", "");
+                       bool applies = type.FullName.StartsWith(string.Format("{0}.", @namespace));
 
-                       return type.FullName.StartsWith(string.Format("{0}.", @namespace));
+                       return applies;
                    }) { }
     }
 
@@ -572,7 +586,9 @@ namespace TeaDriven.Graphology
 
         public bool AppliesTo(Type type)
         {
-            return this._types.Contains(type);
+            bool applies = this._types.Contains(type);
+
+            return applies;
         }
 
         #endregion TypeExclusion Members
