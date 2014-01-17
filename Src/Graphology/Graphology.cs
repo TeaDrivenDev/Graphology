@@ -233,6 +233,11 @@ namespace TeaDriven.Graphology
 
         public GraphNode For(object currentObject, Type referenceType, string referenceName, IEnumerable<object> graphPath)
         {
+            if (currentObject == null) throw new ArgumentNullException("currentObject");
+            if (referenceType == null) throw new ArgumentNullException("referenceType");
+            if (referenceName == null) throw new ArgumentNullException("referenceName");
+            if (graphPath == null) throw new ArgumentNullException("graphPath");
+
             GraphNode node = new GraphNode()
                              {
                                  ReferenceType = referenceType,
@@ -333,7 +338,10 @@ namespace TeaDriven.Graphology
             {
                 foreach (var item in enumerable)
                 {
-                    subGraph.Add(this._getObjectGraph.For(item, typeof(object), "Item", graphPath));
+                    if (null != item)
+                    {
+                        subGraph.Add(this._getObjectGraph.For(item, typeof(object), "Item", graphPath));
+                    }
                 }
 
                 handled = true;
@@ -561,7 +569,7 @@ namespace TeaDriven.Graphology
                    {
                        @namespace = Regex.Replace(@namespace, @"\.$", "");
 
-                       Regex rx = new Regex(string.Format(@"^{0}.[^\.]*", @namespace));
+                       Regex rx = new Regex(string.Format(@"^{0}.[^\.]*$", @namespace));
                        bool applies = rx.IsMatch(type.FullName);
 
                        return applies;
