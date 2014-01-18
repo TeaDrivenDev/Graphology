@@ -211,6 +211,59 @@ namespace TeaDriven.Graphology
         }
     }
 
+    public interface IGetTypeNameString
+    {
+        bool For(Type type, out string typeName);
+    }
+
+    public class DefaultGetTypeNameString : IGetTypeNameString
+    {
+        #region IGetTypeNameString Members
+
+        public bool For(Type type, out string typeName)
+        {
+            if (type == null) throw new ArgumentNullException("type");
+
+            typeName = type.Name;
+
+            return true;
+        }
+
+        #endregion IGetTypeNameString Members
+    }
+
+    public class GenericTypeGetTypeNameString : IGetTypeNameString
+    {
+        #region IGetTypeNameString Members
+
+        public bool For(Type type, out string typeName)
+        {
+            if (type == null) throw new ArgumentNullException("type");
+
+            bool handled = false;
+
+            if (type.IsGenericType)
+            {
+                typeName = Regex.Match(type.Name, @"^([^`]*)").Value;
+
+                IEnumerable<string> genericArgumentNames = type.GetGenericArguments().Select(t => t.Name);
+                string genericArgumentsString = string.Join(", ", genericArgumentNames.ToArray());
+
+                typeName = string.Format("{0}<{1}>", typeName, genericArgumentsString);
+
+                handled = true;
+            }
+            else
+            {
+                typeName = "";
+            }
+
+            return handled;
+        }
+
+        #endregion IGetTypeNameString Members
+    }
+
     #endregion Graph visualization
 
     public abstract class TypeExclusionsClientBase

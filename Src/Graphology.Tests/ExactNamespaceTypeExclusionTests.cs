@@ -1,4 +1,5 @@
-﻿using Xunit;
+﻿using Ploeh.AutoFixture.Xunit;
+using Xunit;
 
 namespace TeaDriven.Graphology.Tests
 {
