@@ -44,7 +44,15 @@ namespace TeaDriven.Graphology
 
             GraphTraversal traversal = new GraphTraversal(getObjectGraph);
 
-            GraphVisualizer visualizer = new GraphVisualizer();
+            LazyGetTypeNameString lazyGetTypeNameString = new LazyGetTypeNameString();
+            IGetTypeNameString getTypeNameString =
+                new CompositeGetTypeNameString(new RecursiveGenericTypeGetTypeNameString(lazyGetTypeNameString),
+                                               new DefaultGetTypeNameString());
+            lazyGetTypeNameString.GetTypeNameString = getTypeNameString;
+
+            GraphVisualizer visualizer =
+                new GraphVisualizer(new NewGetNodeString(new DefaultGetDepthString(),
+                                                         new DefaultGetMemberTypesString(lazyGetTypeNameString)));
 
             Graphologist graphologist = new Graphologist(traversal, visualizer);
 
@@ -101,15 +109,18 @@ namespace TeaDriven.Graphology
         }
     }
 
+    #endregion Facade objects
+
+    #region Graph visualization
+
     public class GraphVisualizer
     {
-        public bool ShowDependencyTypes
-        {
-            get { return this._showDependencyTypes; }
-            set { this._showDependencyTypes = value; }
-        }
+        private readonly IGetNodeString _getNodeString;
 
-        private bool _showDependencyTypes = true;
+        public GraphVisualizer(IGetNodeString getNodeString)
+        {
+            this._getNodeString = getNodeString;
+        }
 
         public string Draw(GraphNode graphNode)
         {
@@ -118,44 +129,253 @@ namespace TeaDriven.Graphology
 
         private string Draw(GraphNode graphNode, int depth)
         {
-            string graph = this.GetTypeString(graphNode.ReferenceType.Name, depth, graphNode.ObjectType);
+            string graph = this._getNodeString.For(graphNode, depth) + Environment.NewLine;
+
+            depth++;
 
             foreach (GraphNode subGraphNode in graphNode.SubGraph)
             {
-                int newDepth = depth + 1;
-
-                graph += this.Draw(subGraphNode, newDepth);
+                graph += this.Draw(subGraphNode, depth);
             }
 
             return graph;
         }
+    }
 
-        private string GetTypeString(string referenceTypeName, int depth, Type objectType)
+    public interface IGetNodeString
+    {
+        string For(GraphNode graphNode, int depth);
+    }
+
+    public class NewGetNodeString : IGetNodeString
+    {
+        private readonly IGetDepthString _getDepthString;
+        private readonly IGetMemberTypesString _getMemberTypesString;
+
+        public NewGetNodeString(IGetDepthString getDepthString, IGetMemberTypesString getMemberTypesString)
+        {
+            if (getDepthString == null) throw new ArgumentNullException("getDepthString");
+            if (getMemberTypesString == null) throw new ArgumentNullException("getMemberTypesString");
+
+            this._getDepthString = getDepthString;
+            this._getMemberTypesString = getMemberTypesString;
+        }
+
+        #region IGetNodeString Members
+
+        public string For(GraphNode graphNode, int depth)
+        {
+            if (graphNode == null) throw new ArgumentNullException("graphNode");
+
+            string depthString = this._getDepthString.For(depth);
+            string memberTypesString = this._getMemberTypesString.For(graphNode);
+
+            string nodeString = string.Format("{0}{1}", depthString, memberTypesString);
+
+            return nodeString;
+        }
+
+        #endregion IGetNodeString Members
+    }
+
+    public interface IGetDepthString
+    {
+        string For(int depth);
+    }
+
+    public class DefaultGetDepthString : IGetDepthString
+    {
+        public string For(int depth)
         {
             var depthString = "";
             if (depth > 0)
             {
                 depthString += new string(' ', 3 * (depth - 1));
-                depthString += " >";
+                depthString += " > ";
             }
-
-            var memberTypeString = this.GetMemberTypeString(referenceTypeName);
-            var graph = string.Format("{0} {1}{2}{3}", depthString, objectType.Name, memberTypeString, Environment.NewLine);
-
-            return graph;
-        }
-
-        private string GetMemberTypeString(string referenceTypeName)
-        {
-            var memberTypeString = (this.ShowDependencyTypes
-                                        ? (string.IsNullOrEmpty(referenceTypeName) ? "" : " : " + referenceTypeName)
-                                        : "");
-
-            return memberTypeString;
+            return depthString;
         }
     }
 
-    #endregion Facade objects
+    public interface IGetMemberTypesString
+    {
+        string For(GraphNode graphNode);
+    }
+
+    public class DefaultGetMemberTypesString : IGetMemberTypesString
+    {
+        private readonly IGetTypeNameString _getTypeNameString;
+
+        public DefaultGetMemberTypesString(IGetTypeNameString getTypeNameString)
+        {
+            if (getTypeNameString == null) throw new ArgumentNullException("getTypeNameString");
+
+            _getTypeNameString = getTypeNameString;
+        }
+
+        #region IGetMemberTypesString Members
+
+        public string For(GraphNode graphNode)
+        {
+            if (graphNode == null) throw new ArgumentNullException("graphNode");
+
+            string objectTypeName;
+            this._getTypeNameString.For(graphNode.ObjectType, out objectTypeName);
+            string referenceTypeName;
+            this._getTypeNameString.For(graphNode.ReferenceType, out referenceTypeName);
+
+            string memberTypesString = string.Format("{0} : {1}", objectTypeName, referenceTypeName);
+
+            return memberTypesString;
+        }
+
+        #endregion IGetMemberTypesString Members
+    }
+
+    public interface IGetTypeNameString
+    {
+        bool For(Type type, out string typeName);
+    }
+
+    public class LazyGetTypeNameString : IGetTypeNameString
+    {
+        private IGetTypeNameString _getTypeNameString;
+
+        #region IGetTypeNameString Members
+
+        public bool For(Type type, out string typeName)
+        {
+            if (type == null) throw new ArgumentNullException("type");
+
+            return this._getTypeNameString.For(type, out typeName);
+        }
+
+        #endregion IGetTypeNameString Members
+
+        public IGetTypeNameString GetTypeNameString
+        {
+            get { return this._getTypeNameString; }
+            set { this._getTypeNameString = value; }
+        }
+    }
+
+    public class CompositeGetTypeNameString : IGetTypeNameString
+    {
+        private readonly IEnumerable<IGetTypeNameString> _innerInstances;
+
+        public IEnumerable<IGetTypeNameString> InnerInstances
+        {
+            get { return this._innerInstances; }
+        }
+
+        public CompositeGetTypeNameString(params IGetTypeNameString[] innerInstances)
+        {
+            if (innerInstances == null) throw new ArgumentNullException("innerInstances");
+
+            this._innerInstances = innerInstances;
+        }
+
+        public CompositeGetTypeNameString(IEnumerable<IGetTypeNameString> innerInstances)
+        {
+            if (innerInstances == null) throw new ArgumentNullException("innerInstances");
+
+            this._innerInstances = innerInstances;
+        }
+
+        #region IGetTypeNameString Members
+
+        public bool For(Type type, out string typeName)
+        {
+            if (type == null) throw new ArgumentNullException("type");
+
+            typeName = "";
+
+            bool handled = false;
+
+            foreach (IGetTypeNameString innerInstance in _innerInstances)
+            {
+                handled = innerInstance.For(type, out typeName);
+
+                if (handled)
+                {
+                    break;
+                }
+            }
+
+            return handled;
+        }
+
+        #endregion IGetTypeNameString Members
+    }
+
+    public class DefaultGetTypeNameString : IGetTypeNameString
+    {
+        #region IGetTypeNameString Members
+
+        public bool For(Type type, out string typeName)
+        {
+            if (type == null) throw new ArgumentNullException("type");
+
+            typeName = type.Name;
+
+            return true;
+        }
+
+        #endregion IGetTypeNameString Members
+    }
+
+    public class RecursiveGenericTypeGetTypeNameString : IGetTypeNameString
+    {
+        private readonly IGetTypeNameString _innerGetTypeNameString;
+
+        public RecursiveGenericTypeGetTypeNameString(IGetTypeNameString innerGetTypeNameString)
+        {
+            if (innerGetTypeNameString == null) throw new ArgumentNullException("innerGetTypeNameString");
+            this._innerGetTypeNameString = innerGetTypeNameString;
+        }
+
+        #region IGetTypeNameString Members
+
+        public bool For(Type type, out string typeName)
+        {
+            if (type == null) throw new ArgumentNullException("type");
+
+            bool handled = false;
+
+            if (type.IsGenericType)
+            {
+                typeName = Regex.Match(type.Name, @"^([^`]*)").Value;
+
+                Type[] genericArguments = type.GetGenericArguments();
+
+                IList<string> genericArgumentNames = new List<string>();
+
+                foreach (Type genericArgument in genericArguments)
+                {
+                    string genericArgumentName;
+                    this._innerGetTypeNameString.For(genericArgument, out genericArgumentName);
+
+                    genericArgumentNames.Add(genericArgumentName);
+                }
+
+                string genericArgumentsString = string.Join(", ", genericArgumentNames.ToArray());
+
+                typeName = string.Format("{0}<{1}>", typeName, genericArgumentsString);
+
+                handled = true;
+            }
+            else
+            {
+                typeName = "";
+            }
+
+            return handled;
+        }
+
+        #endregion IGetTypeNameString Members
+    }
+
+    #endregion Graph visualization
 
     public abstract class TypeExclusionsClientBase
     {
@@ -273,6 +493,11 @@ namespace TeaDriven.Graphology
     {
         private readonly IEnumerable<IGetSubGraph> _getSubGraphRepresentations;
 
+        public CompositeGetSubGraph(params IGetSubGraph[] getSubGraphRepresentations)
+        {
+            _getSubGraphRepresentations = getSubGraphRepresentations;
+        }
+
         public CompositeGetSubGraph(IEnumerable<IGetSubGraph> getSubGraphRepresentations)
         {
             _getSubGraphRepresentations = getSubGraphRepresentations;
@@ -328,19 +553,27 @@ namespace TeaDriven.Graphology
 
         public bool For(object currentObject, IEnumerable<object> graphPath, out IList<GraphNode> subGraph)
         {
+            if (currentObject == null) throw new ArgumentNullException("currentObject");
+            if (graphPath == null) throw new ArgumentNullException("graphPath");
+
             subGraph = new List<GraphNode>();
 
             bool handled = false;
 
-            var enumerable = currentObject as IEnumerable;
+            var type = currentObject.GetType();
 
-            if (null != enumerable)
+            var genericIenumerable =
+                type.GetInterfaces().FirstOrDefault(i => (i.IsGenericType) && (i.GetGenericTypeDefinition() == typeof(IEnumerable<>)));
+
+            if (null != genericIenumerable)
             {
-                foreach (var item in enumerable)
+                Type itemType = genericIenumerable.GetGenericArguments().First();
+
+                foreach (var item in currentObject as IEnumerable)
                 {
                     if (null != item)
                     {
-                        subGraph.Add(this._getObjectGraph.For(item, typeof(object), "Item", graphPath));
+                        subGraph.Add(this._getObjectGraph.For(item, itemType, "Item", graphPath));
                     }
                 }
 
