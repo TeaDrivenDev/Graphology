@@ -79,7 +79,6 @@
     <Compile Include="DefaultGetObjectGraphRepresentationTests.cs" />
     <Compile Include="DefaultGetTypeNameStringTests.cs" />
     <Compile Include="ExactNamespaceTypeExclusionTests.cs" />
-    <Compile Include="GenericTypeGetTypeNameStringTests.cs" />
     <Compile Include="GraphNodeTests.cs" />
     <Compile Include="LazyGetTypeNameStringTests.cs" />
     <Compile Include="NewGetNodeStringTests.cs" />

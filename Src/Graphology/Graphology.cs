@@ -178,28 +178,6 @@ namespace TeaDriven.Graphology
         #endregion IGetNodeString Members
     }
 
-    public class DefaultGetNodeString : IGetNodeString
-    {
-        private readonly IGetDepthString _getDepthString;
-        private readonly IGetMemberTypeString _getMemberTypeString;
-
-        public DefaultGetNodeString(IGetDepthString getDepthString, IGetMemberTypeString getMemberTypeString)
-        {
-            this._getDepthString = getDepthString;
-            this._getMemberTypeString = getMemberTypeString;
-        }
-
-        public string For(GraphNode graphNode, int depth)
-        {
-            var depthString = this._getDepthString.For(depth);
-
-            var memberTypeString = this._getMemberTypeString.For(graphNode.ReferenceType.Name);
-            var graph = string.Format("{0}{1}{2}", depthString, graphNode.ObjectType.Name, memberTypeString);
-
-            return graph;
-        }
-    }
-
     public interface IGetDepthString
     {
         string For(int depth);
@@ -252,31 +230,6 @@ namespace TeaDriven.Graphology
         }
 
         #endregion IGetMemberTypesString Members
-    }
-
-    public interface IGetMemberTypeString
-    {
-        string For(string referenceTypeName);
-    }
-
-    public class DefaultGetMemberTypeString : IGetMemberTypeString
-    {
-        private bool _showDependencyTypes = true;
-
-        public bool ShowDependencyTypes
-        {
-            get { return this._showDependencyTypes; }
-            set { this._showDependencyTypes = value; }
-        }
-
-        public string For(string referenceTypeName)
-        {
-            var memberTypeString = (this.ShowDependencyTypes
-                                        ? (string.IsNullOrEmpty(referenceTypeName) ? "" : " : " + referenceTypeName)
-                                        : "");
-
-            return memberTypeString;
-        }
     }
 
     public interface IGetTypeNameString
@@ -366,38 +319,6 @@ namespace TeaDriven.Graphology
             typeName = type.Name;
 
             return true;
-        }
-
-        #endregion IGetTypeNameString Members
-    }
-
-    public class GenericTypeGetTypeNameString : IGetTypeNameString
-    {
-        #region IGetTypeNameString Members
-
-        public bool For(Type type, out string typeName)
-        {
-            if (type == null) throw new ArgumentNullException("type");
-
-            bool handled = false;
-
-            if (type.IsGenericType)
-            {
-                typeName = Regex.Match(type.Name, @"^([^`]*)").Value;
-
-                IEnumerable<string> genericArgumentNames = type.GetGenericArguments().Select(t => t.Name);
-                string genericArgumentsString = string.Join(", ", genericArgumentNames.ToArray());
-
-                typeName = string.Format("{0}<{1}>", typeName, genericArgumentsString);
-
-                handled = true;
-            }
-            else
-            {
-                typeName = "";
-            }
-
-            return handled;
         }
 
         #endregion IGetTypeNameString Members
