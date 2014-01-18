@@ -118,7 +118,7 @@ namespace TeaDriven.Graphology
 
         private string Draw(GraphNode graphNode, int depth)
         {
-            string graph = this.GetTypeString(graphNode.ReferenceType, depth, graphNode.ObjectType);
+            string graph = this.GetTypeString(graphNode.ObjectType, graphNode.ReferenceType, depth);
 
             depth++;
 
@@ -130,7 +130,7 @@ namespace TeaDriven.Graphology
             return graph;
         }
 
-        private string GetTypeString(Type referenceType, int depth, Type objectType)
+        private string GetTypeString(Type objectType, Type referenceType, int depth)
         {
             var depthString = "";
             if (depth > 0)
