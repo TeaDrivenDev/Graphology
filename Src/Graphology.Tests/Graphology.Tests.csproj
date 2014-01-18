@@ -72,6 +72,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CompositeGetTypeNameStringTests.cs" />
     <Compile Include="Conventions\AutoNSubstituteDataAttribute.cs" />
     <Compile Include="CompositeGetSubGraphTests.cs" />
     <Compile Include="Conventions\InlineAutoNSubstituteDataAttribute.cs" />
@@ -80,6 +81,7 @@
     <Compile Include="ExactNamespaceTypeExclusionTests.cs" />
     <Compile Include="GenericTypeGetTypeNameStringTests.cs" />
     <Compile Include="GraphNodeTests.cs" />
+    <Compile Include="LazyGetTypeNameStringTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RecursiveGenericTypeGetTypeNameStringTests.cs" />
     <Compile Include="TypeExclusionsTests.cs" />

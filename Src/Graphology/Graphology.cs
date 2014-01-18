@@ -216,6 +216,28 @@ namespace TeaDriven.Graphology
         bool For(Type type, out string typeName);
     }
 
+    public class LazyGetTypeNameString : IGetTypeNameString
+    {
+        private IGetTypeNameString _getTypeNameString;
+
+        #region IGetTypeNameString Members
+
+        public bool For(Type type, out string typeName)
+        {
+            if (type == null) throw new ArgumentNullException("type");
+
+            return this._getTypeNameString.For(type, out typeName);
+        }
+
+        #endregion IGetTypeNameString Members
+
+        public IGetTypeNameString GetTypeNameString
+        {
+            get { return this._getTypeNameString; }
+            set { this._getTypeNameString = value; }
+        }
+    }
+
     public class CompositeGetTypeNameString : IGetTypeNameString
     {
         private readonly IEnumerable<IGetTypeNameString> _innerInstances;
