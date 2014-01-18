@@ -145,6 +145,37 @@ namespace TeaDriven.Graphology
         string For(GraphNode graphNode, int depth);
     }
 
+    public class NewGetNodeString : IGetNodeString
+    {
+        private readonly IGetDepthString _getDepthString;
+        private readonly IGetMemberTypesString _getMemberTypesString;
+
+        public NewGetNodeString(IGetDepthString getDepthString, IGetMemberTypesString getMemberTypesString)
+        {
+            if (getDepthString == null) throw new ArgumentNullException("getDepthString");
+            if (getMemberTypesString == null) throw new ArgumentNullException("getMemberTypesString");
+
+            this._getDepthString = getDepthString;
+            this._getMemberTypesString = getMemberTypesString;
+        }
+
+        #region IGetNodeString Members
+
+        public string For(GraphNode graphNode, int depth)
+        {
+            if (graphNode == null) throw new ArgumentNullException("graphNode");
+
+            string depthString = this._getDepthString.For(depth);
+            string memberTypesString = this._getMemberTypesString.For(graphNode);
+
+            string nodeString = string.Format("{0}{1}", depthString, memberTypesString);
+
+            return nodeString;
+        }
+
+        #endregion IGetNodeString Members
+    }
+
     public class DefaultGetNodeString : IGetNodeString
     {
         private readonly IGetDepthString _getDepthString;
@@ -184,6 +215,41 @@ namespace TeaDriven.Graphology
             }
             return depthString;
         }
+    }
+
+    public interface IGetMemberTypesString
+    {
+        string For(GraphNode graphNode);
+    }
+
+    public class DefaultGetMemberTypesString : IGetMemberTypesString
+    {
+        private readonly IGetTypeNameString _getTypeNameString;
+
+        public DefaultGetMemberTypesString(IGetTypeNameString getTypeNameString)
+        {
+            if (getTypeNameString == null) throw new ArgumentNullException("getTypeNameString");
+
+            _getTypeNameString = getTypeNameString;
+        }
+
+        #region IGetMemberTypesString Members
+
+        public string For(GraphNode graphNode)
+        {
+            if (graphNode == null) throw new ArgumentNullException("graphNode");
+
+            string objectTypeName;
+            this._getTypeNameString.For(graphNode.ObjectType, out objectTypeName);
+            string referenceTypeName;
+            this._getTypeNameString.For(graphNode.ReferenceType, out referenceTypeName);
+
+            string memberTypesString = string.Format("{0} : {1}", objectTypeName, referenceTypeName);
+
+            return memberTypesString;
+        }
+
+        #endregion IGetMemberTypesString Members
     }
 
     public interface IGetMemberTypeString
