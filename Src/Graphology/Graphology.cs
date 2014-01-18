@@ -44,13 +44,15 @@ namespace TeaDriven.Graphology
 
             GraphTraversal traversal = new GraphTraversal(getObjectGraph);
 
+            LazyGetTypeNameString lazyGetTypeNameString = new LazyGetTypeNameString();
+            IGetTypeNameString getTypeNameString =
+                new CompositeGetTypeNameString(new RecursiveGenericTypeGetTypeNameString(lazyGetTypeNameString),
+                                               new DefaultGetTypeNameString());
+            lazyGetTypeNameString.GetTypeNameString = getTypeNameString;
+
             GraphVisualizer visualizer =
-                new GraphVisualizer(new DefaultGetNodeString(new DefaultGetDepthString(),
-                                                             new DefaultGetMemberTypeString()
-                                                             {
-                                                                 ShowDependencyTypes =
-                                                                     this.ShowDependencyTypes
-                                                             }));
+                new GraphVisualizer(new NewGetNodeString(new DefaultGetDepthString(),
+                                                         new DefaultGetMemberTypesString(lazyGetTypeNameString)));
 
             Graphologist graphologist = new Graphologist(traversal, visualizer);
 
