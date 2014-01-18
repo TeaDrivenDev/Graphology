@@ -72,13 +72,18 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CompositeGetTypeNameStringTests.cs" />
     <Compile Include="Conventions\AutoNSubstituteDataAttribute.cs" />
     <Compile Include="CompositeGetSubGraphTests.cs" />
     <Compile Include="Conventions\InlineAutoNSubstituteDataAttribute.cs" />
     <Compile Include="DefaultGetObjectGraphRepresentationTests.cs" />
+    <Compile Include="DefaultGetTypeNameStringTests.cs" />
     <Compile Include="ExactNamespaceTypeExclusionTests.cs" />
     <Compile Include="GraphNodeTests.cs" />
+    <Compile Include="LazyGetTypeNameStringTests.cs" />
+    <Compile Include="NewGetNodeStringTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RecursiveGenericTypeGetTypeNameStringTests.cs" />
     <Compile Include="TypeExclusionsTests.cs" />
     <Compile Include="_InsightTests.cs" />
   </ItemGroup>
