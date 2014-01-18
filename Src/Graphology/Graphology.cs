@@ -264,6 +264,57 @@ namespace TeaDriven.Graphology
         #endregion IGetTypeNameString Members
     }
 
+    public class RecursiveGenericTypeGetTypeNameString : IGetTypeNameString
+    {
+        private readonly IGetTypeNameString _innerGetTypeNameString;
+
+        public RecursiveGenericTypeGetTypeNameString(IGetTypeNameString innerGetTypeNameString)
+        {
+            if (innerGetTypeNameString == null) throw new ArgumentNullException("innerGetTypeNameString");
+            this._innerGetTypeNameString = innerGetTypeNameString;
+        }
+
+        #region IGetTypeNameString Members
+
+        public bool For(Type type, out string typeName)
+        {
+            if (type == null) throw new ArgumentNullException("type");
+
+            bool handled = false;
+
+            if (type.IsGenericType)
+            {
+                typeName = Regex.Match(type.Name, @"^([^`]*)").Value;
+
+                Type[] genericArguments = type.GetGenericArguments();
+
+                IList<string> genericArgumentNames = new List<string>();
+
+                foreach (Type genericArgument in genericArguments)
+                {
+                    string genericArgumentName;
+                    this._innerGetTypeNameString.For(genericArgument, out genericArgumentName);
+
+                    genericArgumentNames.Add(genericArgumentName);
+                }
+
+                string genericArgumentsString = string.Join(", ", genericArgumentNames.ToArray());
+
+                typeName = string.Format("{0}<{1}>", typeName, genericArgumentsString);
+
+                handled = true;
+            }
+            else
+            {
+                typeName = "";
+            }
+
+            return handled;
+        }
+
+        #endregion IGetTypeNameString Members
+    }
+
     #endregion Graph visualization
 
     public abstract class TypeExclusionsClientBase

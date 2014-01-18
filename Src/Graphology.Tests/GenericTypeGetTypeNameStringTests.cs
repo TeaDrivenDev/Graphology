@@ -1,6 +1,6 @@
-﻿using System;
+﻿using Ploeh.AutoFixture.Idioms;
+using System;
 using System.Collections.Generic;
-using Ploeh.AutoFixture.Idioms;
 using TeaDriven.Graphology.Tests.Conventions;
 using Xunit;
 using Xunit.Extensions;
