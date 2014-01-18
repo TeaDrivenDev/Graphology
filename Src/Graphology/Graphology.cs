@@ -44,7 +44,13 @@ namespace TeaDriven.Graphology
 
             GraphTraversal traversal = new GraphTraversal(getObjectGraph);
 
-            GraphVisualizer visualizer = new GraphVisualizer();
+            GraphVisualizer visualizer =
+                new GraphVisualizer(new DefaultGetNodeString(new DefaultGetDepthString(),
+                                                             new DefaultGetMemberTypeString()
+                                                             {
+                                                                 ShowDependencyTypes =
+                                                                     this.ShowDependencyTypes
+                                                             }));
 
             Graphologist graphologist = new Graphologist(traversal, visualizer);
 
@@ -101,15 +107,18 @@ namespace TeaDriven.Graphology
         }
     }
 
+    #endregion Facade objects
+
+    #region Graph visualization
+
     public class GraphVisualizer
     {
-        public bool ShowDependencyTypes
-        {
-            get { return this._showDependencyTypes; }
-            set { this._showDependencyTypes = value; }
-        }
+        private readonly IGetNodeString _getNodeString;
 
-        private bool _showDependencyTypes = true;
+        public GraphVisualizer(IGetNodeString getNodeString)
+        {
+            this._getNodeString = getNodeString;
+        }
 
         public string Draw(GraphNode graphNode)
         {
@@ -118,7 +127,7 @@ namespace TeaDriven.Graphology
 
         private string Draw(GraphNode graphNode, int depth)
         {
-            string graph = this.GetNodeString(graphNode.ObjectType, graphNode.ReferenceType, depth);
+            string graph = this._getNodeString.For(graphNode.ObjectType, graphNode.ReferenceType, depth);
 
             depth++;
 
@@ -129,23 +138,70 @@ namespace TeaDriven.Graphology
 
             return graph;
         }
+    }
 
-        private string GetNodeString(Type objectType, Type referenceType, int depth)
+    public interface IGetNodeString
+    {
+        string For(Type objectType, Type referenceType, int depth);
+    }
+
+    public class DefaultGetNodeString : IGetNodeString
+    {
+        private readonly IGetDepthString _getDepthString;
+        private readonly IGetMemberTypeString _getMemberTypeString;
+
+        public DefaultGetNodeString(IGetDepthString getDepthString, IGetMemberTypeString getMemberTypeString)
+        {
+            this._getDepthString = getDepthString;
+            this._getMemberTypeString = getMemberTypeString;
+        }
+
+        public string For(Type objectType, Type referenceType, int depth)
+        {
+            var depthString = this._getDepthString.For(depth);
+
+            var memberTypeString = this._getMemberTypeString.For(referenceType.Name);
+            var graph = string.Format("{0}{1}{2}", depthString, objectType.Name, memberTypeString);
+
+            return graph;
+        }
+    }
+
+    public interface IGetDepthString
+    {
+        string For(int depth);
+    }
+
+    public class DefaultGetDepthString : IGetDepthString
+    {
+        public string For(int depth)
         {
             var depthString = "";
             if (depth > 0)
             {
                 depthString += new string(' ', 3 * (depth - 1));
-                depthString += " >";
+                depthString += " > ";
             }
+            return depthString;
+        }
+    }
 
-            var memberTypeString = this.GetMemberTypeString(referenceType.Name);
-            var graph = string.Format("{0} {1}{2}", depthString, objectType.Name, memberTypeString);
+    public interface IGetMemberTypeString
+    {
+        string For(string referenceTypeName);
+    }
 
-            return graph;
+    public class DefaultGetMemberTypeString : IGetMemberTypeString
+    {
+        private bool _showDependencyTypes = true;
+
+        public bool ShowDependencyTypes
+        {
+            get { return this._showDependencyTypes; }
+            set { this._showDependencyTypes = value; }
         }
 
-        private string GetMemberTypeString(string referenceTypeName)
+        public string For(string referenceTypeName)
         {
             var memberTypeString = (this.ShowDependencyTypes
                                         ? (string.IsNullOrEmpty(referenceTypeName) ? "" : " : " + referenceTypeName)
@@ -155,7 +211,7 @@ namespace TeaDriven.Graphology
         }
     }
 
-    #endregion Facade objects
+    #endregion Graph visualization
 
     public abstract class TypeExclusionsClientBase
     {
