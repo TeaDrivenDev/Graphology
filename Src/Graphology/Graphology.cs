@@ -127,13 +127,13 @@ namespace TeaDriven.Graphology
 
         private string Draw(GraphNode graphNode, int depth)
         {
-            string graph = this._getNodeString.For(graphNode, depth);
+            string graph = this._getNodeString.For(graphNode, depth) + Environment.NewLine;
 
             depth++;
 
             foreach (GraphNode subGraphNode in graphNode.SubGraph)
             {
-                graph += this.Draw(subGraphNode, depth) + Environment.NewLine;
+                graph += this.Draw(subGraphNode, depth);
             }
 
             return graph;
