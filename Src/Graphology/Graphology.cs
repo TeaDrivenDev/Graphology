@@ -216,6 +216,55 @@ namespace TeaDriven.Graphology
         bool For(Type type, out string typeName);
     }
 
+    public class CompositeGetTypeNameString : IGetTypeNameString
+    {
+        private readonly IEnumerable<IGetTypeNameString> _innerInstances;
+
+        public IEnumerable<IGetTypeNameString> InnerInstances
+        {
+            get { return this._innerInstances; }
+        }
+
+        public CompositeGetTypeNameString(params IGetTypeNameString[] innerInstances)
+        {
+            if (innerInstances == null) throw new ArgumentNullException("innerInstances");
+
+            this._innerInstances = innerInstances;
+        }
+
+        public CompositeGetTypeNameString(IEnumerable<IGetTypeNameString> innerInstances)
+        {
+            if (innerInstances == null) throw new ArgumentNullException("innerInstances");
+
+            this._innerInstances = innerInstances;
+        }
+
+        #region IGetTypeNameString Members
+
+        public bool For(Type type, out string typeName)
+        {
+            if (type == null) throw new ArgumentNullException("type");
+
+            typeName = "";
+
+            bool handled = false;
+
+            foreach (IGetTypeNameString innerInstance in _innerInstances)
+            {
+                handled = innerInstance.For(type, out typeName);
+
+                if (handled)
+                {
+                    break;
+                }
+            }
+
+            return handled;
+        }
+
+        #endregion IGetTypeNameString Members
+    }
+
     public class DefaultGetTypeNameString : IGetTypeNameString
     {
         #region IGetTypeNameString Members
@@ -432,6 +481,11 @@ namespace TeaDriven.Graphology
     public class CompositeGetSubGraph : IGetSubGraph
     {
         private readonly IEnumerable<IGetSubGraph> _getSubGraphRepresentations;
+
+        public CompositeGetSubGraph(params IGetSubGraph[] getSubGraphRepresentations)
+        {
+            _getSubGraphRepresentations = getSubGraphRepresentations;
+        }
 
         public CompositeGetSubGraph(IEnumerable<IGetSubGraph> getSubGraphRepresentations)
         {
