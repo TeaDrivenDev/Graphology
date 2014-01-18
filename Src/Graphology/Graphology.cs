@@ -124,7 +124,7 @@ namespace TeaDriven.Graphology
 
             foreach (GraphNode subGraphNode in graphNode.SubGraph)
             {
-                graph += this.Draw(subGraphNode, depth);
+                graph += this.Draw(subGraphNode, depth) + Environment.NewLine;
             }
 
             return graph;
@@ -140,7 +140,7 @@ namespace TeaDriven.Graphology
             }
 
             var memberTypeString = this.GetMemberTypeString(referenceType.Name);
-            var graph = string.Format("{0} {1}{2}{3}", depthString, objectType.Name, memberTypeString, Environment.NewLine);
+            var graph = string.Format("{0} {1}{2}", depthString, objectType.Name, memberTypeString);
 
             return graph;
         }
