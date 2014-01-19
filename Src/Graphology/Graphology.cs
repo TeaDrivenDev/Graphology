@@ -37,7 +37,11 @@ namespace TeaDriven.Graphology
                                                                     new EnumerableGetSubGraph(
                                                                         getObjectGraph, this.TypeExclusions),
                                                                     new DefaultGetSubGraph(
-                                                                        getObjectGraph, this.TypeExclusions)
+                                                                        getObjectGraph,
+                                                                        new DefaultGetObjectFields(
+                                                                            new FilteringGetTypeFields(new DefaultGetTypeFields(),
+                                                                                                       new GenericListItemsTypeFieldExclusion
+                                                                                                           ())), this.TypeExclusions)
                                                                 });
 
             getObjectGraph.GetObjectGraph = new DefaultGetObjectGraph(getSubGraph, this.TypeExclusions);
@@ -589,29 +593,20 @@ namespace TeaDriven.Graphology
     public class DefaultGetSubGraph : TypeExclusionsClientBase, IGetSubGraph
     {
         private readonly IGetObjectGraph _getObjectGraph;
+        private readonly IGetObjectFields _getObjectFields;
 
-        public DefaultGetSubGraph(IGetObjectGraph getObjectGraph)
-        {
-            this._getObjectGraph = getObjectGraph;
-        }
-
-        public DefaultGetSubGraph(IGetObjectGraph getObjectGraph, TypeExclusions typeExclusions)
+        public DefaultGetSubGraph(IGetObjectGraph getObjectGraph, IGetObjectFields getObjectFields, TypeExclusions typeExclusions)
             : base(typeExclusions)
         {
             this._getObjectGraph = getObjectGraph;
+            _getObjectFields = getObjectFields;
         }
 
         public bool For(object currentObject, IEnumerable<object> graphPath, out IList<GraphNode> subGraph)
         {
             subGraph = new List<GraphNode>();
 
-            var type = currentObject.GetType();
-
-            var fields = type.GetFields(BindingFlags.Instance | BindingFlags.NonPublic);
-
-            var fieldValues =
-                fields.Select(
-                    fi => new { ReferenceType = fi.FieldType, ReferenceName = fi.Name, FieldValue = currentObject.GetFieldValue(fi.Name) });
+            var fieldValues = this._getObjectFields.FieldValues(currentObject);
 
             foreach (var fieldValue in fieldValues.Where(v => null != v.FieldValue))
             {
@@ -624,6 +619,102 @@ namespace TeaDriven.Graphology
 
             return true;
         }
+    }
+
+    public interface IGetObjectFields
+    {
+        IEnumerable<ObjectField> FieldValues(object currentObject);
+    }
+
+    public class DefaultGetObjectFields : IGetObjectFields
+    {
+        private readonly IGetTypeFields _getTypeFields;
+
+        public DefaultGetObjectFields(IGetTypeFields getTypeFields)
+        {
+            _getTypeFields = getTypeFields;
+        }
+
+        public IEnumerable<ObjectField> FieldValues(object currentObject)
+        {
+            Type type = currentObject.GetType();
+
+            IEnumerable<FieldInfo> fields = this._getTypeFields.For(type);
+
+            IEnumerable<ObjectField> fieldValues = fields.Select(fi => new ObjectField()
+                                                                       {
+                                                                           ReferenceType = fi.FieldType,
+                                                                           ReferenceName = fi.Name,
+                                                                           FieldValue = currentObject.GetFieldValue(fi.Name)
+                                                                       });
+
+            return fieldValues;
+        }
+    }
+
+    public interface IGetTypeFields
+    {
+        IEnumerable<FieldInfo> For(Type type);
+    }
+
+    public class FilteringGetTypeFields : IGetTypeFields
+    {
+        private readonly IGetTypeFields _getTypeFields;
+        private readonly ITypeFieldExclusion _typeFieldExclusion;
+
+        public FilteringGetTypeFields(IGetTypeFields getTypeFields, ITypeFieldExclusion typeFieldExclusion)
+        {
+            this._getTypeFields = getTypeFields;
+            this._typeFieldExclusion = typeFieldExclusion;
+        }
+
+        #region IGetTypeFields Members
+
+        public IEnumerable<FieldInfo> For(Type type)
+        {
+            IEnumerable<FieldInfo> fields = this._getTypeFields.For(type).Where(f => !this._typeFieldExclusion.AppliesTo(type, f));
+
+            return fields;
+        }
+
+        #endregion IGetTypeFields Members
+    }
+
+    public class DefaultGetTypeFields : IGetTypeFields
+    {
+        public IEnumerable<FieldInfo> For(Type type)
+        {
+            FieldInfo[] fields = type.GetFields(BindingFlags.Instance | BindingFlags.NonPublic);
+
+            return fields;
+        }
+    }
+
+    public interface ITypeFieldExclusion
+    {
+        bool AppliesTo(Type type, FieldInfo field);
+    }
+
+    public class GenericListItemsTypeFieldExclusion : ITypeFieldExclusion
+    {
+        public bool AppliesTo(Type type, FieldInfo field)
+        {
+            bool typeIsGenericList = ((type.IsGenericType) && (typeof(List<>) == type.GetGenericTypeDefinition()));
+            bool fieldIsItems = ("_items" == field.Name);
+
+            bool applies = (typeIsGenericList) && (fieldIsItems);
+
+            return applies;
+        }
+    }
+
+    public class ObjectField
+    {
+        public Type ReferenceType { get; set; }
+
+        public string ReferenceName { get; set; }
+
+        public object FieldValue { get; set; }
     }
 
     #endregion IGetSubGraph
