@@ -1,0 +1,24 @@
+Graphologist : Graphologist
+ > GraphTraversal : GraphTraversal
+    > LazyGetObjectGraph : IGetObjectGraph
+       > DefaultGetObjectGraph : IGetObjectGraph
+          > CompositeGetSubGraph : IGetSubGraph
+             > List<IGetSubGraph> : IEnumerable<IGetSubGraph>
+                > EnumerableGetSubGraph : IGetSubGraph
+                   > LazyGetObjectGraph : IGetObjectGraph
+                > DefaultGetSubGraph : IGetSubGraph
+                   > LazyGetObjectGraph : IGetObjectGraph
+                   > DefaultGetObjectFields : IGetObjectFields
+                      > FilteringGetTypeFields : IGetTypeFields
+                         > DefaultGetTypeFields : IGetTypeFields
+                         > GenericListItemsTypeFieldExclusion : ITypeFieldExclusion
+ > GraphVisualizer : GraphVisualizer
+    > NewGetNodeString : IGetNodeString
+       > DefaultGetDepthString : IGetDepthString
+       > DefaultGetMemberTypesString : IGetMemberTypesString
+          > LazyGetTypeNameString : IGetTypeNameString
+             > CompositeGetTypeNameString : IGetTypeNameString
+                > IGetTypeNameString[] : IEnumerable<IGetTypeNameString>
+                   > RecursiveGenericTypeGetTypeNameString : IGetTypeNameString
+                      > LazyGetTypeNameString : IGetTypeNameString
+                   > DefaultGetTypeNameString : IGetTypeNameString
