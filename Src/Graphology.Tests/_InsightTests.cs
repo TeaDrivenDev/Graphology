@@ -20,6 +20,27 @@ namespace TeaDriven.Graphology.Tests
 
             // Assert
         }
+
+        [Fact]
+        public void WriteGraphologistGraph()
+        {
+            // Arrange
+            var projectPath = @"..\Graphology";
+            var graphName = "Graphologist";
+
+            var graphologist = new CreateGraphologist()
+                               {
+                                   TypeExclusions = new MinimalTypeExclusions()
+                                                    {
+                                                        Exclude = new ExactNamespaceTypeExclusion("System")
+                                                    }
+                               }.Now();
+
+            // Act
+            graphologist.WriteGraph(graphologist, projectPath, graphName);
+
+            // Assert
+        }
     }
 
     public class Grah
