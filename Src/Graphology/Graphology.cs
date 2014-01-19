@@ -39,7 +39,7 @@ namespace TeaDriven.Graphology
 
             getObjectGraph.GetObjectGraph = new DefaultGetObjectGraph(getSubGraph, this.TypeExclusions);
 
-            GraphTraversal traversal = new GraphTraversal(getObjectGraph);
+            IGraphTraversal traversal = new GraphTraversal(getObjectGraph);
 
             LazyGetTypeNameString lazyGetTypeNameString = new LazyGetTypeNameString();
             IGetTypeNameString getTypeNameString =
@@ -47,30 +47,35 @@ namespace TeaDriven.Graphology
                                                new DefaultGetTypeNameString());
             lazyGetTypeNameString.GetTypeNameString = getTypeNameString;
 
-            GraphVisualizer visualizer =
-                new GraphVisualizer(new DefaultGetNodeString(new DefaultGetDepthString(),
+            IGraphVisualization visualization =
+                new GraphVisualization(new DefaultGetNodeString(new DefaultGetDepthString(),
                                                          new DefaultGetMemberTypesString(lazyGetTypeNameString)));
 
-            Graphologist graphologist = new Graphologist(traversal, visualizer);
+            Graphologist graphologist = new Graphologist(traversal, visualization);
 
             return graphologist;
         }
     }
 
-    public class Graphologist
+    public interface IGraphologist
     {
-        private readonly GraphTraversal _traversal;
-        private readonly GraphVisualizer _visualizer;
+        string Graph(object targetObject);
+    }
 
-        public Graphologist(GraphTraversal traversal, GraphVisualizer visualizer)
+    public class Graphologist : IGraphologist
+    {
+        private readonly IGraphTraversal _traversal;
+        private readonly IGraphVisualization _visualization;
+
+        public Graphologist(IGraphTraversal traversal, IGraphVisualization visualization)
         {
-            _traversal = traversal;
-            _visualizer = visualizer;
+            this._traversal = traversal;
+            this._visualization = visualization;
         }
 
         public string Graph(object targetObject)
         {
-            string graph = this._visualizer.Draw(this._traversal.Traverse(targetObject));
+            string graph = this._visualization.Draw(this._traversal.Traverse(targetObject));
 
             return graph;
         }
@@ -89,7 +94,12 @@ namespace TeaDriven.Graphology
         }
     }
 
-    public class GraphTraversal
+    public interface IGraphTraversal
+    {
+        GraphNode Traverse(object targetObject);
+    }
+
+    public class GraphTraversal : IGraphTraversal
     {
         private readonly IGetObjectGraph _getObjectGraph;
 
@@ -110,11 +120,16 @@ namespace TeaDriven.Graphology
 
     #region Graph visualization
 
-    public class GraphVisualizer
+    public interface IGraphVisualization
+    {
+        string Draw(GraphNode graphNode);
+    }
+
+    public class GraphVisualization : IGraphVisualization
     {
         private readonly IGetNodeString _getNodeString;
 
-        public GraphVisualizer(IGetNodeString getNodeString)
+        public GraphVisualization(IGetNodeString getNodeString)
         {
             this._getNodeString = getNodeString;
         }
