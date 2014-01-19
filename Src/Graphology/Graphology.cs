@@ -48,7 +48,7 @@ namespace TeaDriven.Graphology
             lazyGetTypeNameString.GetTypeNameString = getTypeNameString;
 
             GraphVisualizer visualizer =
-                new GraphVisualizer(new NewGetNodeString(new DefaultGetDepthString(),
+                new GraphVisualizer(new DefaultGetNodeString(new DefaultGetDepthString(),
                                                          new DefaultGetMemberTypesString(lazyGetTypeNameString)));
 
             Graphologist graphologist = new Graphologist(traversal, visualizer);
@@ -144,12 +144,12 @@ namespace TeaDriven.Graphology
         string For(GraphNode graphNode, int depth);
     }
 
-    public class NewGetNodeString : IGetNodeString
+    public class DefaultGetNodeString : IGetNodeString
     {
         private readonly IGetDepthString _getDepthString;
         private readonly IGetMemberTypesString _getMemberTypesString;
 
-        public NewGetNodeString(IGetDepthString getDepthString, IGetMemberTypesString getMemberTypesString)
+        public DefaultGetNodeString(IGetDepthString getDepthString, IGetMemberTypesString getMemberTypesString)
         {
             if (getDepthString == null) throw new ArgumentNullException("getDepthString");
             if (getMemberTypesString == null) throw new ArgumentNullException("getMemberTypesString");
