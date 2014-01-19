@@ -1,4 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using NSubstitute;
+using System.Collections;
+using System.Collections.Generic;
+using System.Reflection;
 using Xunit;
 
 namespace TeaDriven.Graphology.Tests
@@ -54,4 +57,24 @@ namespace TeaDriven.Graphology.Tests
     }
 
     public class Grah2 { }
+
+    public class DefaultGetSubGraphTests
+    {
+        [Fact]
+        public void For_GenericList_DoesNotBuildSubgraph()
+        {
+            // Arrange
+            var list = new List<Grah2>() { new Grah2(), new Grah2() };
+
+            var dings = Substitute.For<FieldInfo>();
+
+            //            var sut = new DefaultGetSubGraph(Substitute.For<IGetObjectGraph>());
+
+            // Act
+            IList<GraphNode> subGraph;
+            //        var result = sut.For(list, new object[] {}, out subGraph);
+
+            // Assert
+        }
+    }
 }

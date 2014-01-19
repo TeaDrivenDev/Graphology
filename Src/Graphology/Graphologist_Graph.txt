@@ -8,11 +8,10 @@ Graphologist : Graphologist
                    > LazyGetObjectGraph : IGetObjectGraph
                 > DefaultGetSubGraph : IGetSubGraph
                    > LazyGetObjectGraph : IGetObjectGraph
-                > IGetSubGraph[] : IGetSubGraph[]
-                   > EnumerableGetSubGraph : IGetSubGraph
-                      > LazyGetObjectGraph : IGetObjectGraph
-                   > DefaultGetSubGraph : IGetSubGraph
-                      > LazyGetObjectGraph : IGetObjectGraph
+                   > DefaultGetObjectFields : IGetObjectFields
+                      > FilteringGetTypeFields : IGetTypeFields
+                         > DefaultGetTypeFields : IGetTypeFields
+                         > GenericListItemsTypeFieldExclusion : ITypeFieldExclusion
  > GraphVisualizer : GraphVisualizer
     > NewGetNodeString : IGetNodeString
        > DefaultGetDepthString : IGetDepthString
