@@ -13,14 +13,7 @@ namespace TeaDriven.Graphology
 
     public class CreateGraphologist
     {
-        private bool _showDependencyTypes = true;
         private TypeExclusions _typeExclusions = new TypeExclusions();
-
-        public bool ShowDependencyTypes
-        {
-            get { return this._showDependencyTypes; }
-            set { this._showDependencyTypes = value; }
-        }
 
         public TypeExclusions TypeExclusions
         {
