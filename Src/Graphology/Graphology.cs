@@ -11,6 +11,108 @@ namespace TeaDriven.Graphology
 {
     #region Facade objects
 
+    public interface IGraphologistComponents
+    {
+        IGraphTraversal GraphTraversal { get; }
+
+        IGraphVisualization GraphVisualization { get; }
+    }
+
+    public class GraphologistComponents : IGraphologistComponents
+    {
+        private IGraphTraversal _graphTraversal;
+        private IGraphVisualization _graphVisualization;
+
+        public GraphologistComponents(IGraphTraversal graphTraversal, IGraphVisualization graphVisualization)
+        {
+            this._graphTraversal = graphTraversal;
+            this._graphVisualization = graphVisualization;
+        }
+
+        #region IGraphologistComponents Members
+
+        public IGraphTraversal GraphTraversal
+        {
+            get { return this._graphTraversal; }
+        }
+
+        public IGraphVisualization GraphVisualization
+        {
+            get { return this._graphVisualization; }
+        }
+
+        #endregion IGraphologistComponents Members
+    }
+
+    public class DefaultGraphologistComponents : GraphologistComponents
+    {
+        public DefaultGraphologistComponents(TypeExclusions typeExclusions, ITypeFieldExclusion typeFieldExclusion)
+            : base(
+                new GraphTraversal(BuildGetObjectGraph(typeExclusions, typeFieldExclusion)),
+                new GraphVisualization(new DefaultGetNodeString(new DefaultGetDepthString(), new DefaultGetMemberTypesString(BuildGetTypeNameString()))))
+        {
+        }
+
+        public DefaultGraphologistComponents()
+            : this(DefaultTypeExclusions, DefaultTypeFieldExclusion)
+        {
+        }
+
+        public DefaultGraphologistComponents(TypeExclusions typeExclusions)
+            : this(typeExclusions, DefaultTypeFieldExclusion)
+        {
+        }
+
+        public DefaultGraphologistComponents(ITypeFieldExclusion typeFieldExclusion)
+            : this(DefaultTypeExclusions, typeFieldExclusion)
+        {
+        }
+
+        private static readonly TypeExclusions _defaultTypeExclusions = new MinimalTypeExclusions();
+        private static readonly ITypeFieldExclusion _defaultTypeFieldExclusion = new GenericListItemsTypeFieldExclusion();
+
+        public static TypeExclusions DefaultTypeExclusions
+        {
+            get { return _defaultTypeExclusions; }
+        }
+
+        public static ITypeFieldExclusion DefaultTypeFieldExclusion
+        {
+            get { return _defaultTypeFieldExclusion; }
+        }
+
+        private static IGetObjectGraph BuildGetObjectGraph(TypeExclusions typeExclusions, ITypeFieldExclusion typeFieldExclusion)
+        {
+            LazyGetObjectGraph getObjectGraph = new LazyGetObjectGraph();
+
+            IGetSubGraph getSubGraph = new CompositeGetSubGraph(new List<IGetSubGraph>()
+                                                                {
+                                                                    new EnumerableGetSubGraph(getObjectGraph, typeExclusions),
+                                                                    new DefaultGetSubGraph(getObjectGraph,
+                                                                                           new DefaultGetObjectFields(
+                                                                                               new FilteringGetTypeFields(
+                                                                                                   new DefaultGetTypeFields(),
+                                                                                                   typeFieldExclusion)),
+                                                                                           typeExclusions)
+                                                                });
+
+            getObjectGraph.GetObjectGraph = new DefaultGetObjectGraph(getSubGraph, typeExclusions);
+
+            return getObjectGraph;
+        }
+
+        private static IGetTypeNameString BuildGetTypeNameString()
+        {
+            LazyGetTypeNameString lazyGetTypeNameString = new LazyGetTypeNameString();
+            IGetTypeNameString getTypeNameString =
+                new CompositeGetTypeNameString(new RecursiveGenericTypeGetTypeNameString(lazyGetTypeNameString),
+                                               new DefaultGetTypeNameString());
+            lazyGetTypeNameString.GetTypeNameString = getTypeNameString;
+
+            return lazyGetTypeNameString;
+        }
+    }
+
     public class CreateGraphologist
     {
         private TypeExclusions _typeExclusions = new TypeExclusions();
@@ -49,7 +151,7 @@ namespace TeaDriven.Graphology
 
             IGraphVisualization visualization =
                 new GraphVisualization(new DefaultGetNodeString(new DefaultGetDepthString(),
-                                                         new DefaultGetMemberTypesString(lazyGetTypeNameString)));
+                                                                new DefaultGetMemberTypesString(lazyGetTypeNameString)));
 
             Graphologist graphologist = new Graphologist(traversal, visualization);
 
@@ -67,6 +169,21 @@ namespace TeaDriven.Graphology
         private readonly IGraphTraversal _traversal;
         private readonly IGraphVisualization _visualization;
 
+        public Graphologist()
+            : this(new DefaultGraphologistComponents())
+        {
+        }
+
+        public Graphologist(TypeExclusions typeExclusions)
+            : this(new DefaultGraphologistComponents(typeExclusions))
+        {
+        }
+
+        public Graphologist(IGraphologistComponents components)
+            : this(components.GraphTraversal, components.GraphVisualization)
+        {
+        }
+
         public Graphologist(IGraphTraversal traversal, IGraphVisualization visualization)
         {
             this._traversal = traversal;
@@ -83,7 +200,7 @@ namespace TeaDriven.Graphology
 
     public static class GraphologistExtensions
     {
-        public static void WriteGraph(this Graphologist graphologist, object targetObject, string projectPath, string graphName)
+        public static void WriteGraph(this IGraphologist graphologist, object targetObject, string projectPath, string graphName)
         {
             var currentDir = Directory.GetCurrentDirectory();
 
