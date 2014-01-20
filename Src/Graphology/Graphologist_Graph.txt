@@ -12,7 +12,7 @@ Graphologist : Graphologist
                       > FilteringGetTypeFields : IGetTypeFields
                          > DefaultGetTypeFields : IGetTypeFields
                          > GenericListItemsTypeFieldExclusion : ITypeFieldExclusion
- > GraphVisualization : IGraphVisualization
+ > TextGraphVisualization : IGraphVisualization
     > DefaultGetNodeString : IGetNodeString
        > DefaultGetDepthString : IGetDepthString
        > DefaultGetMemberTypesString : IGetMemberTypesString
