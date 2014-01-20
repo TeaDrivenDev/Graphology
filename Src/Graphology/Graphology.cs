@@ -20,14 +20,25 @@ namespace TeaDriven.Graphology
 
     public class GraphologistComponents : IGraphologistComponents
     {
-        private IGraphTraversal _graphTraversal;
-        private IGraphVisualization _graphVisualization;
+        #region Dependencies
+
+        private readonly IGraphTraversal _graphTraversal;
+        private readonly IGraphVisualization _graphVisualization;
+
+        #endregion Dependencies
+
+        #region Constructors
 
         public GraphologistComponents(IGraphTraversal graphTraversal, IGraphVisualization graphVisualization)
         {
+            if (graphTraversal == null) throw new ArgumentNullException("graphTraversal");
+            if (graphVisualization == null) throw new ArgumentNullException("graphVisualization");
+
             this._graphTraversal = graphTraversal;
             this._graphVisualization = graphVisualization;
         }
+
+        #endregion Constructors
 
         #region IGraphologistComponents Members
 
@@ -46,27 +57,26 @@ namespace TeaDriven.Graphology
 
     public class DefaultGraphologistComponents : GraphologistComponents
     {
+        #region Constructors
+
         public DefaultGraphologistComponents(TypeExclusions typeExclusions, ITypeFieldExclusion typeFieldExclusion)
             : base(
                 new GraphTraversal(BuildGetObjectGraph(typeExclusions, typeFieldExclusion)),
-                new GraphVisualization(new DefaultGetNodeString(new DefaultGetDepthString(), new DefaultGetMemberTypesString(BuildGetTypeNameString()))))
-        {
-        }
+                new TextGraphVisualization(new DefaultGetNodeString(new DefaultGetDepthString(),
+                                                                new DefaultGetMemberTypesString(BuildGetTypeNameString())))) { }
 
         public DefaultGraphologistComponents()
-            : this(DefaultTypeExclusions, DefaultTypeFieldExclusion)
-        {
-        }
+            : this(DefaultTypeExclusions, DefaultTypeFieldExclusion) { }
 
         public DefaultGraphologistComponents(TypeExclusions typeExclusions)
-            : this(typeExclusions, DefaultTypeFieldExclusion)
-        {
-        }
+            : this(typeExclusions, DefaultTypeFieldExclusion) { }
 
         public DefaultGraphologistComponents(ITypeFieldExclusion typeFieldExclusion)
-            : this(DefaultTypeExclusions, typeFieldExclusion)
-        {
-        }
+            : this(DefaultTypeExclusions, typeFieldExclusion) { }
+
+        #endregion Constructors
+
+        #region Default exclusions
 
         private static readonly TypeExclusions _defaultTypeExclusions = new MinimalTypeExclusions();
         private static readonly ITypeFieldExclusion _defaultTypeFieldExclusion = new GenericListItemsTypeFieldExclusion();
@@ -81,8 +91,15 @@ namespace TeaDriven.Graphology
             get { return _defaultTypeFieldExclusion; }
         }
 
+        #endregion Default exclusions
+
+        #region Builder methods
+
         private static IGetObjectGraph BuildGetObjectGraph(TypeExclusions typeExclusions, ITypeFieldExclusion typeFieldExclusion)
         {
+            if (typeExclusions == null) throw new ArgumentNullException("typeExclusions");
+            if (typeFieldExclusion == null) throw new ArgumentNullException("typeFieldExclusion");
+
             LazyGetObjectGraph getObjectGraph = new LazyGetObjectGraph();
 
             IGetSubGraph getSubGraph = new CompositeGetSubGraph(new List<IGetSubGraph>()
@@ -111,6 +128,8 @@ namespace TeaDriven.Graphology
 
             return lazyGetTypeNameString;
         }
+
+        #endregion Builder methods
     }
 
     public interface IGraphologist
@@ -120,36 +139,47 @@ namespace TeaDriven.Graphology
 
     public class Graphologist : IGraphologist
     {
+        #region Dependencies
+
         private readonly IGraphTraversal _traversal;
         private readonly IGraphVisualization _visualization;
 
+        #endregion Dependencies
+
+        #region Constructors
+
         public Graphologist()
-            : this(new DefaultGraphologistComponents())
-        {
-        }
+            : this(new DefaultGraphologistComponents()) { }
 
         public Graphologist(TypeExclusions typeExclusions)
-            : this(new DefaultGraphologistComponents(typeExclusions))
-        {
-        }
+            : this(new DefaultGraphologistComponents(typeExclusions)) { }
 
         public Graphologist(IGraphologistComponents components)
-            : this(components.GraphTraversal, components.GraphVisualization)
-        {
-        }
+            : this(components.GraphTraversal, components.GraphVisualization) { }
 
         public Graphologist(IGraphTraversal traversal, IGraphVisualization visualization)
         {
+            if (traversal == null) throw new ArgumentNullException("traversal");
+            if (visualization == null) throw new ArgumentNullException("visualization");
+
             this._traversal = traversal;
             this._visualization = visualization;
         }
 
+        #endregion Constructors
+
+        #region IGraphologist Members
+
         public string Graph(object targetObject)
         {
+            if (targetObject == null) throw new ArgumentNullException("targetObject");
+
             string graph = this._visualization.Draw(this._traversal.Traverse(targetObject));
 
             return graph;
         }
+
+        #endregion IGraphologist Members
     }
 
     public static class GraphologistExtensions
@@ -172,19 +202,35 @@ namespace TeaDriven.Graphology
 
     public class GraphTraversal : IGraphTraversal
     {
+        #region Dependencies
+
         private readonly IGetObjectGraph _getObjectGraph;
+
+        #endregion Dependencies
+
+        #region Constructors
 
         public GraphTraversal(IGetObjectGraph getObjectGraph)
         {
+            if (getObjectGraph == null) throw new ArgumentNullException("getObjectGraph");
+
             this._getObjectGraph = getObjectGraph;
         }
 
+        #endregion Constructors
+
+        #region IGraphTraversal Members
+
         public GraphNode Traverse(object targetObject)
         {
+            if (targetObject == null) throw new ArgumentNullException("targetObject");
+
             GraphNode graph = this._getObjectGraph.For(targetObject, targetObject.GetType(), "root", new List<object>());
 
             return graph;
         }
+
+        #endregion IGraphTraversal Members
     }
 
     #endregion Facade objects
@@ -196,19 +242,35 @@ namespace TeaDriven.Graphology
         string Draw(GraphNode graphNode);
     }
 
-    public class GraphVisualization : IGraphVisualization
+    public class TextGraphVisualization : IGraphVisualization
     {
+        #region Dependencies
+
         private readonly IGetNodeString _getNodeString;
 
-        public GraphVisualization(IGetNodeString getNodeString)
+        #endregion Dependencies
+
+        #region Constructors
+
+        public TextGraphVisualization(IGetNodeString getNodeString)
         {
+            if (getNodeString == null) throw new ArgumentNullException("getNodeString");
+
             this._getNodeString = getNodeString;
         }
+
+        #endregion Constructors
+
+        #region IGraphVisualization Members
 
         public string Draw(GraphNode graphNode)
         {
             return this.Draw(graphNode, 0);
         }
+
+        #endregion IGraphVisualization Members
+
+        #region Internal methods
 
         private string Draw(GraphNode graphNode, int depth)
         {
@@ -223,6 +285,8 @@ namespace TeaDriven.Graphology
 
             return graph;
         }
+
+        #endregion Internal methods
     }
 
     public interface IGetNodeString
@@ -232,8 +296,14 @@ namespace TeaDriven.Graphology
 
     public class DefaultGetNodeString : IGetNodeString
     {
+        #region Dependencies
+
         private readonly IGetDepthString _getDepthString;
         private readonly IGetMemberTypesString _getMemberTypesString;
+
+        #endregion Dependencies
+
+        #region Constructors
 
         public DefaultGetNodeString(IGetDepthString getDepthString, IGetMemberTypesString getMemberTypesString)
         {
@@ -243,6 +313,8 @@ namespace TeaDriven.Graphology
             this._getDepthString = getDepthString;
             this._getMemberTypesString = getMemberTypesString;
         }
+
+        #endregion Constructors
 
         #region IGetNodeString Members
 
@@ -268,6 +340,8 @@ namespace TeaDriven.Graphology
 
     public class DefaultGetDepthString : IGetDepthString
     {
+        #region IGetDepthString Members
+
         public string For(int depth)
         {
             var depthString = "";
@@ -278,6 +352,8 @@ namespace TeaDriven.Graphology
             }
             return depthString;
         }
+
+        #endregion IGetDepthString Members
     }
 
     public interface IGetMemberTypesString
@@ -287,14 +363,22 @@ namespace TeaDriven.Graphology
 
     public class DefaultGetMemberTypesString : IGetMemberTypesString
     {
+        #region Dependencies
+
         private readonly IGetTypeNameString _getTypeNameString;
+
+        #endregion Dependencies
+
+        #region Constructors
 
         public DefaultGetMemberTypesString(IGetTypeNameString getTypeNameString)
         {
             if (getTypeNameString == null) throw new ArgumentNullException("getTypeNameString");
 
-            _getTypeNameString = getTypeNameString;
+            this._getTypeNameString = getTypeNameString;
         }
+
+        #endregion Constructors
 
         #region IGetMemberTypesString Members
 
@@ -322,8 +406,6 @@ namespace TeaDriven.Graphology
 
     public class LazyGetTypeNameString : IGetTypeNameString
     {
-        private IGetTypeNameString _getTypeNameString;
-
         #region IGetTypeNameString Members
 
         public bool For(Type type, out string typeName)
@@ -335,21 +417,37 @@ namespace TeaDriven.Graphology
 
         #endregion IGetTypeNameString Members
 
+        #region Relayed instance
+
+        private IGetTypeNameString _getTypeNameString;
+
         public IGetTypeNameString GetTypeNameString
         {
             get { return this._getTypeNameString; }
             set { this._getTypeNameString = value; }
         }
+
+        #endregion Relayed instance
     }
 
     public class CompositeGetTypeNameString : IGetTypeNameString
     {
+        #region Dependencies
+
         private readonly IEnumerable<IGetTypeNameString> _innerInstances;
+
+        #endregion Dependencies
+
+        #region Configuration
 
         public IEnumerable<IGetTypeNameString> InnerInstances
         {
             get { return this._innerInstances; }
         }
+
+        #endregion Configuration
+
+        #region Constructors
 
         public CompositeGetTypeNameString(params IGetTypeNameString[] innerInstances)
         {
@@ -364,6 +462,8 @@ namespace TeaDriven.Graphology
 
             this._innerInstances = innerInstances;
         }
+
+        #endregion Constructors
 
         #region IGetTypeNameString Members
 
@@ -409,13 +509,22 @@ namespace TeaDriven.Graphology
 
     public class RecursiveGenericTypeGetTypeNameString : IGetTypeNameString
     {
+        #region Dependencies
+
         private readonly IGetTypeNameString _innerGetTypeNameString;
+
+        #endregion Dependencies
+
+        #region Constructors
 
         public RecursiveGenericTypeGetTypeNameString(IGetTypeNameString innerGetTypeNameString)
         {
             if (innerGetTypeNameString == null) throw new ArgumentNullException("innerGetTypeNameString");
+
             this._innerGetTypeNameString = innerGetTypeNameString;
         }
+
+        #endregion Constructors
 
         #region IGetTypeNameString Members
 
@@ -462,11 +571,17 @@ namespace TeaDriven.Graphology
 
     public abstract class TypeExclusionsClientBase
     {
+        #region Dependencies
+
+        private readonly TypeExclusions _typeExclusions = new TypeExclusions();
+
+        #endregion Dependencies
+
+        #region Constructors
+
         protected TypeExclusionsClientBase()
         {
         }
-
-        private readonly TypeExclusions _typeExclusions = new TypeExclusions();
 
         protected TypeExclusionsClientBase(TypeExclusions typeExclusions)
         {
@@ -474,6 +589,10 @@ namespace TeaDriven.Graphology
 
             this._typeExclusions.Add(typeExclusions);
         }
+
+        #endregion Constructors
+
+        #region Methods
 
         protected bool TypeIsExcluded(Type t)
         {
@@ -488,6 +607,8 @@ namespace TeaDriven.Graphology
 
             return applies;
         }
+
+        #endregion Methods
     }
 
     #region IGetObjectGraph
@@ -499,7 +620,11 @@ namespace TeaDriven.Graphology
 
     public class LazyGetObjectGraph : IGetObjectGraph
     {
+        #region Relayed instance
+
         public IGetObjectGraph GetObjectGraph { get; set; }
+
+        #endregion Relayed instance
 
         #region IGetObjectGraph Members
 
@@ -515,7 +640,13 @@ namespace TeaDriven.Graphology
 
     public class DefaultGetObjectGraph : TypeExclusionsClientBase, IGetObjectGraph
     {
+        #region Dependencies
+
         private readonly IGetSubGraph _getSubGraph;
+
+        #endregion Dependencies
+
+        #region Constructors
 
         public DefaultGetObjectGraph(IGetSubGraph getSubGraph, TypeExclusions typeExclusions)
             : base(typeExclusions)
@@ -531,6 +662,8 @@ namespace TeaDriven.Graphology
 
             this._getSubGraph = getSubGraph;
         }
+
+        #endregion Constructors
 
         #region IGetObjectGraph Members
 
@@ -574,17 +707,29 @@ namespace TeaDriven.Graphology
 
     public class CompositeGetSubGraph : IGetSubGraph
     {
+        #region Dependencies
+
         private readonly IEnumerable<IGetSubGraph> _getSubGraphRepresentations;
+
+        #endregion Dependencies
+
+        #region Constructors
 
         public CompositeGetSubGraph(params IGetSubGraph[] getSubGraphRepresentations)
         {
-            _getSubGraphRepresentations = getSubGraphRepresentations;
+            if (getSubGraphRepresentations == null) throw new ArgumentNullException("getSubGraphRepresentations");
+
+            this._getSubGraphRepresentations = getSubGraphRepresentations;
         }
 
         public CompositeGetSubGraph(IEnumerable<IGetSubGraph> getSubGraphRepresentations)
         {
-            _getSubGraphRepresentations = getSubGraphRepresentations;
+            if (getSubGraphRepresentations == null) throw new ArgumentNullException("getSubGraphRepresentations");
+
+            this._getSubGraphRepresentations = getSubGraphRepresentations;
         }
+
+        #endregion Constructors
 
         #region IGetSubGraph Members
 
@@ -619,18 +764,30 @@ namespace TeaDriven.Graphology
 
     public class EnumerableGetSubGraph : TypeExclusionsClientBase, IGetSubGraph
     {
+        #region Dependencies
+
         private readonly IGetObjectGraph _getObjectGraph;
+
+        #endregion Dependencies
+
+        #region Constructors
 
         public EnumerableGetSubGraph(IGetObjectGraph getObjectGraph)
         {
+            if (getObjectGraph == null) throw new ArgumentNullException("getObjectGraph");
+
             this._getObjectGraph = getObjectGraph;
         }
 
         public EnumerableGetSubGraph(IGetObjectGraph getObjectGraph, TypeExclusions typeExclusions)
             : base(typeExclusions)
         {
+            if (getObjectGraph == null) throw new ArgumentNullException("getObjectGraph");
+
             this._getObjectGraph = getObjectGraph;
         }
+
+        #endregion Constructors
 
         #region IGetSubGraph Members
 
@@ -671,15 +828,28 @@ namespace TeaDriven.Graphology
 
     public class DefaultGetSubGraph : TypeExclusionsClientBase, IGetSubGraph
     {
+        #region Dependencies
+
         private readonly IGetObjectGraph _getObjectGraph;
         private readonly IGetObjectFields _getObjectFields;
+
+        #endregion Dependencies
+
+        #region Constructors
 
         public DefaultGetSubGraph(IGetObjectGraph getObjectGraph, IGetObjectFields getObjectFields, TypeExclusions typeExclusions)
             : base(typeExclusions)
         {
+            if (getObjectGraph == null) throw new ArgumentNullException("getObjectGraph");
+            if (getObjectFields == null) throw new ArgumentNullException("getObjectFields");
+
             this._getObjectGraph = getObjectGraph;
-            _getObjectFields = getObjectFields;
+            this._getObjectFields = getObjectFields;
         }
+
+        #endregion Constructors
+
+        #region IGetSubGraph Members
 
         public bool For(object currentObject, IEnumerable<object> graphPath, out IList<GraphNode> subGraph)
         {
@@ -698,6 +868,8 @@ namespace TeaDriven.Graphology
 
             return true;
         }
+
+        #endregion IGetSubGraph Members
     }
 
     public interface IGetObjectFields
@@ -707,12 +879,24 @@ namespace TeaDriven.Graphology
 
     public class DefaultGetObjectFields : IGetObjectFields
     {
+        #region Dependencies
+
         private readonly IGetTypeFields _getTypeFields;
+
+        #endregion Dependencies
+
+        #region Constructors
 
         public DefaultGetObjectFields(IGetTypeFields getTypeFields)
         {
-            _getTypeFields = getTypeFields;
+            if (getTypeFields == null) throw new ArgumentNullException("getTypeFields");
+
+            this._getTypeFields = getTypeFields;
         }
+
+        #endregion Constructors
+
+        #region IGetObjectFields Members
 
         public IEnumerable<ObjectField> FieldValues(object currentObject)
         {
@@ -729,6 +913,8 @@ namespace TeaDriven.Graphology
 
             return fieldValues;
         }
+
+        #endregion IGetObjectFields Members
     }
 
     public interface IGetTypeFields
@@ -738,14 +924,25 @@ namespace TeaDriven.Graphology
 
     public class FilteringGetTypeFields : IGetTypeFields
     {
+        #region Dependencies
+
         private readonly IGetTypeFields _getTypeFields;
         private readonly ITypeFieldExclusion _typeFieldExclusion;
 
+        #endregion Dependencies
+
+        #region Constructors
+
         public FilteringGetTypeFields(IGetTypeFields getTypeFields, ITypeFieldExclusion typeFieldExclusion)
         {
+            if (getTypeFields == null) throw new ArgumentNullException("getTypeFields");
+            if (typeFieldExclusion == null) throw new ArgumentNullException("typeFieldExclusion");
+
             this._getTypeFields = getTypeFields;
             this._typeFieldExclusion = typeFieldExclusion;
         }
+
+        #endregion Constructors
 
         #region IGetTypeFields Members
 
@@ -761,12 +958,16 @@ namespace TeaDriven.Graphology
 
     public class DefaultGetTypeFields : IGetTypeFields
     {
+        #region IGetTypeFields Members
+
         public IEnumerable<FieldInfo> For(Type type)
         {
             FieldInfo[] fields = type.GetFields(BindingFlags.Instance | BindingFlags.NonPublic);
 
             return fields;
         }
+
+        #endregion IGetTypeFields Members
     }
 
     public interface ITypeFieldExclusion
@@ -776,6 +977,8 @@ namespace TeaDriven.Graphology
 
     public class GenericListItemsTypeFieldExclusion : ITypeFieldExclusion
     {
+        #region ITypeFieldExclusion Members
+
         public bool AppliesTo(Type type, FieldInfo field)
         {
             bool typeIsGenericList = ((type.IsGenericType) && (typeof(List<>) == type.GetGenericTypeDefinition()));
@@ -785,6 +988,8 @@ namespace TeaDriven.Graphology
 
             return applies;
         }
+
+        #endregion ITypeFieldExclusion Members
     }
 
     public class ObjectField
@@ -910,7 +1115,13 @@ namespace TeaDriven.Graphology
 
     public class CompositeTypeExclusion : ITypeExclusion
     {
+        #region Dependencies
+
         private readonly IEnumerable<ITypeExclusion> _exclusions;
+
+        #endregion Dependencies
+
+        #region Constructors
 
         public CompositeTypeExclusion(IEnumerable<ITypeExclusion> exclusions)
         {
@@ -926,6 +1137,8 @@ namespace TeaDriven.Graphology
             this._exclusions = exclusions;
         }
 
+        #endregion Constructors
+
         #region ITypeExclusion Members
 
         public bool AppliesTo(Type type)
@@ -935,25 +1148,34 @@ namespace TeaDriven.Graphology
 
         #endregion ITypeExclusion Members
 
+        #region Configuration
+
         public IEnumerable<ITypeExclusion> TypeExclusions
         {
-            get
-            {
-                return this._exclusions;
-            }
+            get { return this._exclusions; }
         }
+
+        #endregion Configuration
     }
 
     public class FuncTypeExclusion : ITypeExclusion
     {
+        #region Dependencies
+
         private readonly Func<Type, bool> _rule;
+
+        #endregion Dependencies
+
+        #region Constructors
 
         public FuncTypeExclusion(Func<Type, bool> rule)
         {
             if (rule == null) throw new ArgumentNullException("rule");
 
-            _rule = rule;
+            this._rule = rule;
         }
+
+        #endregion Constructors
 
         #region TypeExclusion Members
 
@@ -967,7 +1189,13 @@ namespace TeaDriven.Graphology
 
     public class ExactNamespaceTypeExclusion : FuncTypeExclusion
     {
+        #region Dependencies
+
         private readonly string _ns;
+
+        #endregion Dependencies
+
+        #region Constructors
 
         public ExactNamespaceTypeExclusion(string @namespace)
             : base(type =>
@@ -980,18 +1208,30 @@ namespace TeaDriven.Graphology
                        return applies;
                    })
         {
-            _ns = @namespace;
+            this._ns = @namespace;
         }
+
+        #endregion Constructors
+
+        #region Configuration
 
         public string Namespace
         {
             get { return this._ns; }
         }
+
+        #endregion Configuration
     }
 
     public class RootNamespaceTypeExclusion : FuncTypeExclusion
     {
+        #region Dependencies
+
         private readonly string _ns;
+
+        #endregion Dependencies
+
+        #region Constructors
 
         public RootNamespaceTypeExclusion(string @namespace)
             : base(type =>
@@ -1002,32 +1242,46 @@ namespace TeaDriven.Graphology
                        return applies;
                    })
         {
-            _ns = @namespace;
+            this._ns = @namespace;
         }
+
+        #endregion Constructors
+
+        #region Configuration
 
         public string Namespace
         {
             get { return this._ns; }
         }
+
+        #endregion Configuration
     }
 
     public class ConcreteTypeExclusion : ITypeExclusion
     {
+        #region Dependencies
+
         private readonly IEnumerable<Type> _types;
+
+        #endregion Dependencies
+
+        #region Constructors
 
         public ConcreteTypeExclusion(params Type[] types)
         {
             if (types == null) throw new ArgumentNullException("types");
 
-            _types = types;
+            this._types = types;
         }
 
         public ConcreteTypeExclusion(IEnumerable<Type> types)
         {
             if (types == null) throw new ArgumentNullException("types");
 
-            _types = types;
+            this._types = types;
         }
+
+        #endregion Constructors
 
         #region TypeExclusion Members
 
@@ -1040,13 +1294,14 @@ namespace TeaDriven.Graphology
 
         #endregion TypeExclusion Members
 
+        #region Configuration
+
         public IEnumerable<Type> Types
         {
-            get
-            {
-                return this._types;
-            }
+            get { return this._types; }
         }
+
+        #endregion Configuration
     }
 
     #endregion Exclusion Rules
