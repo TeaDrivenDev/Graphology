@@ -12,14 +12,10 @@ namespace TeaDriven.Graphology.AutoFixture.Tests
 
             var fixture = new Fixture();
 
-            var createGraphologist = new CreateGraphologist()
-                                     {
-                                         TypeExclusions = new MinimalTypeExclusions()
-                                         {
-                                             Exclude = new ExactNamespaceTypeExclusion("System")
-                                         }
-                                     };
-            var graphologist = createGraphologist.Now();
+            var graphologist = new Graphologist(new MinimalTypeExclusions()
+                                                {
+                                                    Exclude = new ExactNamespaceTypeExclusion("System")
+                                                });
 
             // Act
             var graph = graphologist.Graph(fixture);
@@ -36,14 +32,10 @@ namespace TeaDriven.Graphology.AutoFixture.Tests
 
             var fixture = new Fixture();
 
-            var createGraphologist = new CreateGraphologist()
-                                     {
-                                         TypeExclusions = new MinimalTypeExclusions()
-                                                          {
-                                                              Exclude = new ExactNamespaceTypeExclusion("System")
-                                                          }
-                                     };
-            var graphologist = createGraphologist.Now();
+            var graphologist = new Graphologist(new MinimalTypeExclusions()
+            {
+                Exclude = new ExactNamespaceTypeExclusion("System")
+            });
 
             // Act
             var graph = graphologist.Graph(fixture);

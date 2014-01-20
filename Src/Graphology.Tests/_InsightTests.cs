@@ -14,9 +14,7 @@ namespace TeaDriven.Graphology.Tests
             // Arrange
             var grah = new Grah(new[] { new Grah2(), new Grah2() });
 
-            var createGraphologist = new CreateGraphologist();
-
-            var graphologist = createGraphologist.Now();
+            var graphologist = new Graphologist();
 
             // Act
             var graph = graphologist.Graph(grah);
@@ -31,13 +29,10 @@ namespace TeaDriven.Graphology.Tests
             var projectPath = @"..\Graphology";
             var graphName = "Graphologist";
 
-            var graphologist = new CreateGraphologist()
-                               {
-                                   TypeExclusions = new MinimalTypeExclusions()
-                                                    {
-                                                        Exclude = new ExactNamespaceTypeExclusion("System")
-                                                    }
-                               }.Now();
+            var graphologist = new Graphologist(new MinimalTypeExclusions()
+                                                {
+                                                    Exclude = new ExactNamespaceTypeExclusion("System")
+                                                });
 
             // Act
             graphologist.WriteGraph(graphologist, projectPath, graphName);
