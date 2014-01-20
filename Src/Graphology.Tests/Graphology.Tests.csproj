@@ -81,7 +81,7 @@
     <Compile Include="ExactNamespaceTypeExclusionTests.cs" />
     <Compile Include="GraphNodeTests.cs" />
     <Compile Include="LazyGetTypeNameStringTests.cs" />
-    <Compile Include="NewGetNodeStringTests.cs" />
+    <Compile Include="DefaultGetNodeStringTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RecursiveGenericTypeGetTypeNameStringTests.cs" />
     <Compile Include="TypeExclusionsTests.cs" />

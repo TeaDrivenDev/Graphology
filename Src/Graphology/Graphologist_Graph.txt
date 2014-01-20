@@ -1,5 +1,5 @@
 Graphologist : Graphologist
- > GraphTraversal : GraphTraversal
+ > GraphTraversal : IGraphTraversal
     > LazyGetObjectGraph : IGetObjectGraph
        > DefaultGetObjectGraph : IGetObjectGraph
           > CompositeGetSubGraph : IGetSubGraph
@@ -12,8 +12,8 @@ Graphologist : Graphologist
                       > FilteringGetTypeFields : IGetTypeFields
                          > DefaultGetTypeFields : IGetTypeFields
                          > GenericListItemsTypeFieldExclusion : ITypeFieldExclusion
- > GraphVisualizer : GraphVisualizer
-    > NewGetNodeString : IGetNodeString
+ > GraphVisualization : IGraphVisualization
+    > DefaultGetNodeString : IGetNodeString
        > DefaultGetDepthString : IGetDepthString
        > DefaultGetMemberTypesString : IGetMemberTypesString
           > LazyGetTypeNameString : IGetTypeNameString
