@@ -113,52 +113,6 @@ namespace TeaDriven.Graphology
         }
     }
 
-    public class CreateGraphologist
-    {
-        private TypeExclusions _typeExclusions = new TypeExclusions();
-
-        public TypeExclusions TypeExclusions
-        {
-            get { return this._typeExclusions; }
-            set { this._typeExclusions = value; }
-        }
-
-        public Graphologist Now()
-        {
-            LazyGetObjectGraph getObjectGraph = new LazyGetObjectGraph();
-
-            IGetSubGraph getSubGraph = new CompositeGetSubGraph(new List<IGetSubGraph>()
-                                                                {
-                                                                    new EnumerableGetSubGraph(
-                                                                        getObjectGraph, this.TypeExclusions),
-                                                                    new DefaultGetSubGraph(
-                                                                        getObjectGraph,
-                                                                        new DefaultGetObjectFields(
-                                                                            new FilteringGetTypeFields(new DefaultGetTypeFields(),
-                                                                                                       new GenericListItemsTypeFieldExclusion
-                                                                                                           ())), this.TypeExclusions)
-                                                                });
-
-            getObjectGraph.GetObjectGraph = new DefaultGetObjectGraph(getSubGraph, this.TypeExclusions);
-
-            IGraphTraversal traversal = new GraphTraversal(getObjectGraph);
-
-            LazyGetTypeNameString lazyGetTypeNameString = new LazyGetTypeNameString();
-            IGetTypeNameString getTypeNameString =
-                new CompositeGetTypeNameString(new RecursiveGenericTypeGetTypeNameString(lazyGetTypeNameString),
-                                               new DefaultGetTypeNameString());
-            lazyGetTypeNameString.GetTypeNameString = getTypeNameString;
-
-            IGraphVisualization visualization =
-                new GraphVisualization(new DefaultGetNodeString(new DefaultGetDepthString(),
-                                                                new DefaultGetMemberTypesString(lazyGetTypeNameString)));
-
-            Graphologist graphologist = new Graphologist(traversal, visualization);
-
-            return graphologist;
-        }
-    }
-
     public interface IGraphologist
     {
         string Graph(object targetObject);
