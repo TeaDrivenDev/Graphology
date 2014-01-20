@@ -912,10 +912,12 @@ namespace TeaDriven.Graphology
             }
         }
 
-        public void Add(TypeExclusions additionalExclusions)
+        public TypeExclusions Add(TypeExclusions additionalExclusions)
         {
             this.Exclude = additionalExclusions.Exclude;
             this.DoNotFollow = additionalExclusions.DoNotFollow;
+
+            return this;
         }
     }
 
