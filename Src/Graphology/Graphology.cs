@@ -60,16 +60,10 @@ namespace TeaDriven.Graphology
         #region Constructors
 
         public DefaultGraphologistComponents()
-            : base(new GraphTraversal(DefaultGraphTraversal.BuildGetObjectGraph(DefaultGraphTraversal.DefaultTypeExclusions, DefaultGraphTraversal.DefaultTypeFieldExclusion)), new TextGraphVisualization(DefaultGraphVisualization.BuildGetNodeString())) { }
+            : base(new DefaultGraphTraversal(), new DefaultGraphVisualization()) { }
 
         public DefaultGraphologistComponents(TypeExclusions typeExclusions)
-            : base(new GraphTraversal(DefaultGraphTraversal.BuildGetObjectGraph(typeExclusions, DefaultGraphTraversal.DefaultTypeFieldExclusion)), new TextGraphVisualization(DefaultGraphVisualization.BuildGetNodeString())) { }
-
-        //public DefaultGraphologistComponents()
-        //    : base(new DefaultGraphTraversal(), new DefaultGraphVisualization()) { }
-
-        //public DefaultGraphologistComponents(TypeExclusions typeExclusions)
-        //    : base(new DefaultGraphTraversal(typeExclusions), new DefaultGraphVisualization()) { }
+            : base(new DefaultGraphTraversal(typeExclusions), new DefaultGraphVisualization()) { }
 
         #endregion Constructors
     }
@@ -1000,7 +994,15 @@ namespace TeaDriven.Graphology
 
         public IEnumerable<FieldInfo> For(Type type)
         {
-            FieldInfo[] fields = type.GetFields(BindingFlags.Instance | BindingFlags.NonPublic);
+            List<FieldInfo> fields = new List<FieldInfo>();
+
+            while ((null != type) && (typeof(object) != type))
+            {
+                FieldInfo[] fieldsHere = type.GetFields(BindingFlags.Instance | BindingFlags.NonPublic);
+                fields.AddRange(fieldsHere);
+
+                type = type.BaseType;
+            }
 
             return fields;
         }
