@@ -39,11 +39,13 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="NSubstitute">
-      <HintPath>..\..\Packages\NSubstitute.1.7.0.0\lib\NET40\NSubstitute.dll</HintPath>
+    <Reference Include="NSubstitute, Version=1.7.1.0, Culture=neutral, PublicKeyToken=92dd2e9066daa5ca, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\Packages\NSubstitute.1.7.1.0\lib\NET40\NSubstitute.dll</HintPath>
     </Reference>
-    <Reference Include="Ploeh.Albedo">
-      <HintPath>..\..\Packages\Albedo.0.4.0\lib\net35\Ploeh.Albedo.dll</HintPath>
+    <Reference Include="Ploeh.Albedo, Version=0.5.0.0, Culture=neutral, PublicKeyToken=179ef6dd03497bbd, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\Packages\Albedo.0.5.0\lib\net35\Ploeh.Albedo.dll</HintPath>
     </Reference>
     <Reference Include="Ploeh.AutoFixture">
       <HintPath>..\..\Packages\AutoFixture.3.16.4\lib\net40\Ploeh.AutoFixture.dll</HintPath>
