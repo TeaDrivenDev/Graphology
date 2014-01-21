@@ -1,18 +1,66 @@
 Graphologist : Graphologist
- > GraphTraversal : IGraphTraversal
+ > DefaultGraphTraversal : IGraphTraversal
     > LazyGetObjectGraph : IGetObjectGraph
        > DefaultGetObjectGraph : IGetObjectGraph
           > CompositeGetSubGraph : IGetSubGraph
              > List<IGetSubGraph> : IEnumerable<IGetSubGraph>
                 > EnumerableGetSubGraph : IGetSubGraph
                    > LazyGetObjectGraph : IGetObjectGraph
+                   > TypeExclusions : TypeExclusions
+                      > EmptyTypeExclusion : ITypeExclusion
+                      > CompositeTypeExclusion : ITypeExclusion
+                         > ITypeExclusion[] : IEnumerable<ITypeExclusion>
+                            > EmptyTypeExclusion : ITypeExclusion
+                            > CompositeTypeExclusion : ITypeExclusion
+                               > ITypeExclusion[] : IEnumerable<ITypeExclusion>
+                                  > EmptyTypeExclusion : ITypeExclusion
+                                  > ExactNamespaceTypeExclusion : ITypeExclusion
+                                     > Func<Type, Boolean> : Func<Type, Boolean>
+                      > EmptyTypeExclusion : ITypeExclusion
+                      > CompositeTypeExclusion : ITypeExclusion
+                         > ITypeExclusion[] : IEnumerable<ITypeExclusion>
+                            > EmptyTypeExclusion : ITypeExclusion
+                            > ExactNamespaceTypeExclusion : ITypeExclusion
+                               > Func<Type, Boolean> : Func<Type, Boolean>
                 > DefaultGetSubGraph : IGetSubGraph
                    > LazyGetObjectGraph : IGetObjectGraph
                    > DefaultGetObjectFields : IGetObjectFields
                       > FilteringGetTypeFields : IGetTypeFields
                          > DefaultGetTypeFields : IGetTypeFields
                          > GenericListItemsTypeFieldExclusion : ITypeFieldExclusion
- > TextGraphVisualization : IGraphVisualization
+                   > TypeExclusions : TypeExclusions
+                      > EmptyTypeExclusion : ITypeExclusion
+                      > CompositeTypeExclusion : ITypeExclusion
+                         > ITypeExclusion[] : IEnumerable<ITypeExclusion>
+                            > EmptyTypeExclusion : ITypeExclusion
+                            > CompositeTypeExclusion : ITypeExclusion
+                               > ITypeExclusion[] : IEnumerable<ITypeExclusion>
+                                  > EmptyTypeExclusion : ITypeExclusion
+                                  > ExactNamespaceTypeExclusion : ITypeExclusion
+                                     > Func<Type, Boolean> : Func<Type, Boolean>
+                      > EmptyTypeExclusion : ITypeExclusion
+                      > CompositeTypeExclusion : ITypeExclusion
+                         > ITypeExclusion[] : IEnumerable<ITypeExclusion>
+                            > EmptyTypeExclusion : ITypeExclusion
+                            > ExactNamespaceTypeExclusion : ITypeExclusion
+                               > Func<Type, Boolean> : Func<Type, Boolean>
+          > TypeExclusions : TypeExclusions
+             > EmptyTypeExclusion : ITypeExclusion
+             > CompositeTypeExclusion : ITypeExclusion
+                > ITypeExclusion[] : IEnumerable<ITypeExclusion>
+                   > EmptyTypeExclusion : ITypeExclusion
+                   > CompositeTypeExclusion : ITypeExclusion
+                      > ITypeExclusion[] : IEnumerable<ITypeExclusion>
+                         > EmptyTypeExclusion : ITypeExclusion
+                         > ExactNamespaceTypeExclusion : ITypeExclusion
+                            > Func<Type, Boolean> : Func<Type, Boolean>
+             > EmptyTypeExclusion : ITypeExclusion
+             > CompositeTypeExclusion : ITypeExclusion
+                > ITypeExclusion[] : IEnumerable<ITypeExclusion>
+                   > EmptyTypeExclusion : ITypeExclusion
+                   > ExactNamespaceTypeExclusion : ITypeExclusion
+                      > Func<Type, Boolean> : Func<Type, Boolean>
+ > DefaultGraphVisualization : IGraphVisualization
     > DefaultGetNodeString : IGetNodeString
        > DefaultGetDepthString : IGetDepthString
        > DefaultGetMemberTypesString : IGetMemberTypesString
