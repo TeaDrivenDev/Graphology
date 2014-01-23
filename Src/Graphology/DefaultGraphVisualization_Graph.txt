@@ -1,0 +1,10 @@
+DefaultGraphVisualization : DefaultGraphVisualization
+ > DefaultGetNodeString : IGetNodeString
+    > DefaultGetDepthString : IGetDepthString
+    > DefaultGetMemberTypesString : IGetMemberTypesString
+       > LazyGetTypeNameString : IGetTypeNameString
+          > CompositeGetTypeNameString : IGetTypeNameString
+             > IGetTypeNameString[] : IEnumerable<IGetTypeNameString>
+                > RecursiveGenericTypeGetTypeNameString : IGetTypeNameString
+                   > LazyGetTypeNameString : IGetTypeNameString
+                > DefaultGetTypeNameString : IGetTypeNameString

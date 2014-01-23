@@ -887,7 +887,7 @@ namespace TeaDriven.Graphology
         {
             subGraph = new List<GraphNode>();
 
-            var fieldValues = this._getObjectFields.FieldValues(currentObject);
+            var fieldValues = this._getObjectFields.For(currentObject);
 
             foreach (var fieldValue in fieldValues.Where(v => null != v.FieldValue))
             {
@@ -906,7 +906,7 @@ namespace TeaDriven.Graphology
 
     public interface IGetObjectFields
     {
-        IEnumerable<ObjectField> FieldValues(object currentObject);
+        IEnumerable<ObjectField> For(object currentObject);
     }
 
     public class DefaultGetObjectFields : IGetObjectFields
@@ -930,7 +930,7 @@ namespace TeaDriven.Graphology
 
         #region IGetObjectFields Members
 
-        public IEnumerable<ObjectField> FieldValues(object currentObject)
+        public IEnumerable<ObjectField> For(object currentObject)
         {
             Type type = currentObject.GetType();
 
