@@ -5,7 +5,7 @@ Graphologist : Graphologist
           > CompositeGetSubGraph : IGetSubGraph
              > List<IGetSubGraph> : IEnumerable<IGetSubGraph>
                 > EnumerableGetSubGraph : IGetSubGraph
-                   > LazyGetObjectGraph : IGetObjectGraph
+                   > LazyGetObjectGraph : IGetObjectGraph (recursed)
                    > TypeExclusions : TypeExclusions
                       > EmptyTypeExclusion : ITypeExclusion
                       > CompositeTypeExclusion : ITypeExclusion
@@ -23,7 +23,7 @@ Graphologist : Graphologist
                             > ExactNamespaceTypeExclusion : ITypeExclusion
                                > Func<Type, Boolean> : Func<Type, Boolean>
                 > DefaultGetSubGraph : IGetSubGraph
-                   > LazyGetObjectGraph : IGetObjectGraph
+                   > LazyGetObjectGraph : IGetObjectGraph (recursed)
                    > DefaultGetObjectFields : IGetObjectFields
                       > FilteringGetTypeFields : IGetTypeFields
                          > DefaultGetTypeFields : IGetTypeFields
@@ -68,5 +68,5 @@ Graphologist : Graphologist
              > CompositeGetTypeNameString : IGetTypeNameString
                 > IGetTypeNameString[] : IEnumerable<IGetTypeNameString>
                    > RecursiveGenericTypeGetTypeNameString : IGetTypeNameString
-                      > LazyGetTypeNameString : IGetTypeNameString
+                      > LazyGetTypeNameString : IGetTypeNameString (recursed)
                    > DefaultGetTypeNameString : IGetTypeNameString

@@ -359,6 +359,11 @@ namespace TeaDriven.Graphology
 
             string nodeString = string.Format("{0}{1}", depthString, memberTypesString);
 
+            if (graphNode.IsRecursionStart)
+            {
+                nodeString += " (recursed)";
+            }
+
             return nodeString;
         }
 
@@ -713,7 +718,11 @@ namespace TeaDriven.Graphology
                                  ReferenceName = referenceName,
                              };
 
-            if ((!graphPath.Contains(currentObject)) && (!DoNotFollowType(currentObject.GetType())))
+            if (graphPath.Contains(currentObject))
+            {
+                node.IsRecursionStart = true;
+            }
+            else if (!DoNotFollowType(currentObject.GetType()))
             {
                 IList<GraphNode> subGraph = new List<GraphNode>();
                 bool handled = this._getSubGraph.For(currentObject, graphPath.Concat(new List<object>() { currentObject }),
@@ -1058,6 +1067,8 @@ namespace TeaDriven.Graphology
             get { return this._subGraph; }
             set { this._subGraph = value; }
         }
+
+        public bool IsRecursionStart { get; set; }
 
         public override string ToString()
         {
