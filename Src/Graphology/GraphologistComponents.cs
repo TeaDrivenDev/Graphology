@@ -4,8 +4,6 @@ using TeaDriven.Graphology.Visualization;
 
 namespace TeaDriven.Graphology
 {
-    #region Facade objects
-
     public class GraphologistComponents : IGraphologistComponents
     {
         #region Dependencies
@@ -42,22 +40,4 @@ namespace TeaDriven.Graphology
 
         #endregion IGraphologistComponents Members
     }
-
-    #endregion Facade objects
-
-    #region Graph visualization
-
-    #endregion Graph visualization
-
-    #region IGetObjectGraph
-
-    #endregion IGetObjectGraph
-
-    #region IGetSubGraph
-
-    #endregion IGetSubGraph
-
-    #region Exclusion Rules
-
-    #endregion Exclusion Rules
 }
