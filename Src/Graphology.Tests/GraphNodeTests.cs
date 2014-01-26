@@ -1,33 +1,11 @@
 ﻿using Ploeh.AutoFixture;
 using Ploeh.AutoFixture.Idioms;
-using System.Linq;
 using TeaDriven.Graphology.Tests.Conventions;
 using Xunit;
 using Xunit.Extensions;
 
 namespace TeaDriven.Graphology.Tests
 {
-    public static class FixtureExtensions
-    {
-        public static void MakeNonRecursive(this IFixture fixture)
-        {
-            fixture.Behaviors.Remove(fixture.Behaviors.First(b => b is ThrowingRecursionBehavior));
-            fixture.Behaviors.Add(new OmitOnRecursionBehavior());
-        }
-    }
-
-    public interface IAbstraction1
-    {
-    }
-
-    public interface IAbstraction2
-    {
-    }
-
-    public class NoDependencyType : IAbstraction1, IAbstraction2
-    {
-    }
-
     public class GraphNodeTests
     {
         [Theory, AutoNSubstituteData]

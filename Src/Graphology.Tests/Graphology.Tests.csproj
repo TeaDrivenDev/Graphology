@@ -74,19 +74,26 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CompositeGetTypeNameStringTests.cs" />
+    <Compile Include="Visualization\CompositeGetTypeNameStringTests.cs" />
     <Compile Include="Conventions\AutoNSubstituteDataAttribute.cs" />
-    <Compile Include="CompositeGetSubGraphTests.cs" />
+    <Compile Include="Traversal\CompositeGetSubGraphTests.cs" />
     <Compile Include="Conventions\InlineAutoNSubstituteDataAttribute.cs" />
-    <Compile Include="DefaultGetObjectGraphRepresentationTests.cs" />
-    <Compile Include="DefaultGetTypeNameStringTests.cs" />
-    <Compile Include="ExactNamespaceTypeExclusionTests.cs" />
+    <Compile Include="Visualization\DefaultGetHashCodeMappingsTests.cs" />
+    <Compile Include="Visualization\DefaultGetMemberTypesStringTests.cs" />
+    <Compile Include="Visualization\DefaultGetNextLetterCodeTests.cs" />
+    <Compile Include="Traversal\DefaultGetObjectGraphRepresentationTests.cs" />
+    <Compile Include="Visualization\DefaultGetTypeNameStringTests.cs" />
+    <Compile Include="Traversal\ExactNamespaceTypeExclusionTests.cs" />
+    <Compile Include="Conventions\FixtureExtensions.cs" />
     <Compile Include="GraphNodeTests.cs" />
-    <Compile Include="LazyGetTypeNameStringTests.cs" />
-    <Compile Include="DefaultGetNodeStringTests.cs" />
+    <Compile Include="TestTypes\IAbstraction1.cs" />
+    <Compile Include="TestTypes\IAbstraction2.cs" />
+    <Compile Include="Visualization\LazyGetTypeNameStringTests.cs" />
+    <Compile Include="Visualization\DefaultGetNodeStringTests.cs" />
+    <Compile Include="TestTypes\NoDependencyType.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="RecursiveGenericTypeGetTypeNameStringTests.cs" />
-    <Compile Include="TypeExclusionsTests.cs" />
+    <Compile Include="Visualization\RecursiveGenericTypeGetTypeNameStringTests.cs" />
+    <Compile Include="Traversal\TypeExclusionsTests.cs" />
     <Compile Include="_InsightTests.cs" />
   </ItemGroup>
   <ItemGroup>

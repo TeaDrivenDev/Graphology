@@ -1,9 +1,11 @@
 ﻿using Ploeh.AutoFixture.Idioms;
 using TeaDriven.Graphology.Tests.Conventions;
+using TeaDriven.Graphology.Tests.TestTypes;
+using TeaDriven.Graphology.Traversal;
 using Xunit;
 using Xunit.Extensions;
 
-namespace TeaDriven.Graphology.Tests
+namespace TeaDriven.Graphology.Tests.Traversal
 {
     public class DefaultGetObjectGraphRepresentationTests
     {

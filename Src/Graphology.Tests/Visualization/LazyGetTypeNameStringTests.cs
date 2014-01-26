@@ -1,12 +1,13 @@
-﻿using System;
-using NSubstitute;
+﻿using NSubstitute;
 using Ploeh.AutoFixture.Idioms;
 using Ploeh.AutoFixture.Xunit;
+using System;
 using TeaDriven.Graphology.Tests.Conventions;
+using TeaDriven.Graphology.Visualization;
 using Xunit;
 using Xunit.Extensions;
 
-namespace TeaDriven.Graphology.Tests
+namespace TeaDriven.Graphology.Tests.Visualization
 {
     public class LazyGetTypeNameStringTests
     {

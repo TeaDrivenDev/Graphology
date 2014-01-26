@@ -1,4 +1,5 @@
 ﻿using Ploeh.AutoFixture;
+using TeaDriven.Graphology.Traversal;
 using Xunit;
 
 namespace TeaDriven.Graphology.AutoFixture.Tests
