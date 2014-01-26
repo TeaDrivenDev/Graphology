@@ -55,37 +55,94 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Visualization\DefaultGraphVisualization2.cs" />
-    <Compile Include="Traversal\CompositeGetSubGraph.cs" />
-    <Compile Include="Visualization\CompositeGetTypeNameString.cs" />
-    <Compile Include="Traversal\CompositeTypeExclusion.cs" />
-    <Compile Include="Traversal\ConcreteTypeExclusion.cs" />
-    <Compile Include="Visualization\DefaultGetDepthString.cs" />
-    <Compile Include="Visualization\DefaultGetHashCodeMappings.cs" />
-    <Compile Include="Visualization\DefaultGetMemberTypesString.cs" />
-    <Compile Include="Visualization\DefaultGetNextLetterCode.cs" />
-    <Compile Include="Visualization\DefaultGetNodeString.cs" />
-    <Compile Include="Traversal\DefaultGetObjectFields.cs" />
-    <Compile Include="Traversal\DefaultGetObjectGraph.cs" />
-    <Compile Include="Visualization\DefaultGetRecurringObjectHashes.cs" />
-    <Compile Include="Traversal\DefaultGetSubGraph.cs" />
-    <Compile Include="Traversal\DefaultGetTypeFields.cs" />
-    <Compile Include="Visualization\DefaultGetTypeNameString.cs" />
-    <Compile Include="DefaultGraphologistComponents.cs" />
-    <Compile Include="Traversal\DefaultGraphTraversal.cs" />
-    <Compile Include="Visualization\DefaultGraphVisualization.cs" />
-    <Compile Include="Traversal\EmptyTypeExclusion.cs" />
+    <Compile Include="IGraphologist.cs" />
+    <Compile Include="Visualization\DefaultGraphVisualization2.cs">
+      <DependentUpon>IGraphVisualization.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Traversal\CompositeGetSubGraph.cs">
+      <DependentUpon>IGetSubGraph.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Visualization\CompositeGetTypeNameString.cs">
+      <DependentUpon>IGetTypeNameString.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Traversal\CompositeTypeExclusion.cs">
+      <DependentUpon>ITypeExclusion.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Traversal\ConcreteTypeExclusion.cs">
+      <DependentUpon>ITypeExclusion.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Visualization\DefaultGetDepthString.cs">
+      <DependentUpon>IGetDepthString.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Visualization\DefaultGetHashCodeMappings.cs">
+      <DependentUpon>IGetHashCodeMappings.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Visualization\DefaultGetMemberTypesString.cs">
+      <DependentUpon>IGetMemberTypesString.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Visualization\DefaultGetNextLetterCode.cs">
+      <DependentUpon>IGetNextLetterCode.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Visualization\DefaultGetNodeString.cs">
+      <DependentUpon>IGetNodeString.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Traversal\DefaultGetObjectFields.cs">
+      <DependentUpon>IGetObjectFields.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Traversal\DefaultGetObjectGraph.cs">
+      <DependentUpon>IGetObjectGraph.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Visualization\DefaultGetRecurringObjectHashes.cs">
+      <DependentUpon>IGetRecurringObjectHashes.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Traversal\DefaultGetSubGraph.cs">
+      <DependentUpon>IGetSubGraph.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Traversal\DefaultGetTypeFields.cs">
+      <DependentUpon>IGetTypeFields.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Visualization\DefaultGetTypeNameString.cs">
+      <DependentUpon>IGetTypeNameString.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DefaultGraphologistComponents.cs">
+      <DependentUpon>IGraphologistComponents.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Traversal\DefaultGraphTraversal.cs">
+      <DependentUpon>IGraphTraversal.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Visualization\DefaultGraphVisualization.cs">
+      <DependentUpon>IGraphVisualization.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Traversal\EmptyTypeExclusion.cs">
+      <DependentUpon>ITypeExclusion.cs</DependentUpon>
+    </Compile>
     <Compile Include="EnumerableExtensions.cs" />
-    <Compile Include="Traversal\EnumerableGetSubGraph.cs" />
-    <Compile Include="Traversal\ExactNamespaceTypeExclusion.cs" />
-    <Compile Include="Traversal\FilteringGetTypeFields.cs" />
-    <Compile Include="Traversal\FuncTypeExclusion.cs" />
-    <Compile Include="Traversal\GenericListItemsTypeFieldExclusion.cs" />
+    <Compile Include="Traversal\EnumerableGetSubGraph.cs">
+      <DependentUpon>IGetSubGraph.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Traversal\ExactNamespaceTypeExclusion.cs">
+      <DependentUpon>ITypeExclusion.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Traversal\FilteringGetTypeFields.cs">
+      <DependentUpon>IGetTypeFields.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Traversal\FuncTypeExclusion.cs">
+      <DependentUpon>ITypeExclusion.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Traversal\GenericListItemsTypeFieldExclusion.cs">
+      <DependentUpon>ITypeFieldExclusion.cs</DependentUpon>
+    </Compile>
     <Compile Include="GraphNode.cs" />
-    <Compile Include="Graphologist.cs" />
+    <Compile Include="Graphologist.cs">
+      <DependentUpon>IGraphologist.cs</DependentUpon>
+    </Compile>
     <Compile Include="GraphologistExtensions.cs" />
-    <Compile Include="GraphologistComponents.cs" />
-    <Compile Include="Traversal\GraphTraversal.cs" />
+    <Compile Include="GraphologistComponents.cs">
+      <DependentUpon>IGraphologistComponents.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Traversal\GraphTraversal.cs">
+      <DependentUpon>IGraphTraversal.cs</DependentUpon>
+    </Compile>
     <Compile Include="Visualization\IGetDepthString.cs" />
     <Compile Include="Visualization\IGetHashCodeMappings.cs" />
     <Compile Include="Visualization\IGetMemberTypesString.cs" />
@@ -97,22 +154,37 @@
     <Compile Include="Traversal\IGetSubGraph.cs" />
     <Compile Include="Traversal\IGetTypeFields.cs" />
     <Compile Include="Visualization\IGetTypeNameString.cs" />
-    <Compile Include="IGraphologist.cs" />
     <Compile Include="IGraphologistComponents.cs" />
     <Compile Include="Traversal\IGraphTraversal.cs" />
     <Compile Include="Visualization\IGraphVisualization.cs" />
     <Compile Include="Traversal\ITypeExclusion.cs" />
     <Compile Include="Traversal\ITypeFieldExclusion.cs" />
-    <Compile Include="Traversal\LazyGetObjectGraph.cs" />
-    <Compile Include="Visualization\LazyGetTypeNameString.cs" />
-    <Compile Include="Traversal\MinimalTypeExclusions.cs" />
+    <Compile Include="Traversal\LazyGetObjectGraph.cs">
+      <DependentUpon>IGetObjectGraph.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Visualization\LazyGetTypeNameString.cs">
+      <DependentUpon>IGetTypeNameString.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Traversal\MinimalTypeExclusions.cs">
+      <DependentUpon>TypeExclusions.cs</DependentUpon>
+    </Compile>
     <Compile Include="Traversal\ObjectField.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Visualization\RecurrenceMarkingTextGraphVisualization.cs" />
-    <Compile Include="Visualization\RecursiveGenericTypeGetTypeNameString.cs" />
-    <Compile Include="Traversal\RootNamespaceTypeExclusion.cs" />
-    <Compile Include="Traversal\TestTypeExclusions.cs" />
-    <Compile Include="Visualization\TextGraphVisualization.cs" />
+    <Compile Include="Visualization\RecurrenceMarkingTextGraphVisualization.cs">
+      <DependentUpon>IGraphVisualization.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Visualization\RecursiveGenericTypeGetTypeNameString.cs">
+      <DependentUpon>IGetTypeNameString.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Traversal\RootNamespaceTypeExclusion.cs">
+      <DependentUpon>ITypeExclusion.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Traversal\TestTypeExclusions.cs">
+      <DependentUpon>TypeExclusions.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Visualization\TextGraphVisualization.cs">
+      <DependentUpon>IGraphVisualization.cs</DependentUpon>
+    </Compile>
     <Compile Include="Traversal\TypeExclusions.cs" />
     <Compile Include="Traversal\TypeExclusionsClientBase.cs" />
   </ItemGroup>
