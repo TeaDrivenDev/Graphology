@@ -37,7 +37,6 @@ namespace TeaDriven.Graphology.Tests
         public void For_ReturnsCombinationOfDepthAndMemberTypesStrings(
             [Frozen] IGetDepthString getDepthString,
             [Frozen] IGetMemberTypesString getMemberTypesString,
-            DefaultGetNodeString sut,
             string depthString,
             string memberTypesString,
             int depth,
@@ -45,6 +44,10 @@ namespace TeaDriven.Graphology.Tests
         {
             // Arrange
             fixture.MakeNonRecursive();
+            fixture.Customize(new NoAutoPropertiesCustomization(typeof(DefaultGetNodeString)));
+            fixture.Customize(new NoAutoPropertiesCustomization(typeof(GraphNode)));
+
+            var sut = fixture.Create<DefaultGetNodeString>();
 
             var graphNode = fixture.Create<GraphNode>();
 

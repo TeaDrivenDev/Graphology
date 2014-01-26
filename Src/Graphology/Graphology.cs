@@ -357,7 +357,7 @@ namespace TeaDriven.Graphology
             string depthString = this._getDepthString.For(depth);
             string memberTypesString = this._getMemberTypesString.For(graphNode);
 
-            string nodeString = string.Format("{0}{1}", depthString, memberTypesString);
+            string nodeString = string.Format(this._format, depthString, memberTypesString);
 
             if (graphNode.IsRecursionStart)
             {
@@ -368,6 +368,14 @@ namespace TeaDriven.Graphology
         }
 
         #endregion IGetNodeString Members
+
+        private string _format = "{0}{1}";
+
+        public string Format
+        {
+            get { return this._format; }
+            set { this._format = value; }
+        }
     }
 
     public interface IGetDepthString
@@ -716,6 +724,7 @@ namespace TeaDriven.Graphology
                                  ReferenceType = referenceType,
                                  ObjectType = currentObject.GetType(),
                                  ReferenceName = referenceName,
+                                 ObjectHashCode = currentObject.GetHashCode()
                              };
 
             if (graphPath.Contains(currentObject))
@@ -1070,6 +1079,8 @@ namespace TeaDriven.Graphology
 
         public bool IsRecursionStart { get; set; }
 
+        public int ObjectHashCode { get; set; }
+
         public override string ToString()
         {
             // This is only to see stuff more easily in the debug window; it is too unflexible for practical use
@@ -1356,4 +1367,54 @@ namespace TeaDriven.Graphology
     }
 
     #endregion Exclusion Rules
+
+    public interface IGetRecurringObjectHashes
+    {
+        IEnumerable<int> From(GraphNode graph);
+    }
+
+    public class DefaultGetRecurringObjectHashes : IGetRecurringObjectHashes
+    {
+        #region IGetRecurringObjectHashes Members
+
+        public IEnumerable<int> From(GraphNode graph)
+        {
+            IEnumerable<GraphNode> nodes = graph.Traverse().Where(n => !n.IsRecursionStart);
+            IEnumerable<GraphNode> recurringNodes = nodes.GroupBy(n => n.ObjectHashCode).Where(g => g.Count() > 1).Select(g => g.First());
+
+            int removed = 0;
+
+            do
+            {
+                IEnumerable<GraphNode> toRemove = recurringNodes.Where(n => recurringNodes.Any(n2 => n2.SubGraph.Contains(n))).ToList();
+
+                removed = toRemove.Count();
+
+                recurringNodes = recurringNodes.Except(toRemove);
+            }
+            while (removed > 0);
+
+            IEnumerable<int> hashes = recurringNodes.Select(n => n.ObjectHashCode);
+
+            return hashes;
+        }
+
+        #endregion IGetRecurringObjectHashes Members
+    }
+
+    public static class EnumerableExtensions
+    {
+        public static IEnumerable<GraphNode> Traverse(this GraphNode root)
+        {
+            var stack = new Stack<GraphNode>();
+            stack.Push(root);
+            while (stack.Count > 0)
+            {
+                var current = stack.Pop();
+                yield return current;
+                foreach (var child in current.SubGraph)
+                    stack.Push(child);
+            }
+        }
+    }
 }

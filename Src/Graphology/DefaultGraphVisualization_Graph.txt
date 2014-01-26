@@ -6,5 +6,5 @@ DefaultGraphVisualization : DefaultGraphVisualization
           > CompositeGetTypeNameString : IGetTypeNameString
              > IGetTypeNameString[] : IEnumerable<IGetTypeNameString>
                 > RecursiveGenericTypeGetTypeNameString : IGetTypeNameString
-                   > LazyGetTypeNameString : IGetTypeNameString
+                   > LazyGetTypeNameString : IGetTypeNameString (recursed)
                 > DefaultGetTypeNameString : IGetTypeNameString
