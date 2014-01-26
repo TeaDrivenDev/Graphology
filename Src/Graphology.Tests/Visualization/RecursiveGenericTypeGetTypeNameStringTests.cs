@@ -5,10 +5,11 @@ using Ploeh.AutoFixture.Xunit;
 using System;
 using System.Collections.Generic;
 using TeaDriven.Graphology.Tests.Conventions;
+using TeaDriven.Graphology.Visualization;
 using Xunit;
 using Xunit.Extensions;
 
-namespace TeaDriven.Graphology.Tests
+namespace TeaDriven.Graphology.Tests.Visualization
 {
     public class RecursiveGenericTypeGetTypeNameStringTests
     {

@@ -1,8 +1,9 @@
 ﻿using NSubstitute;
 using System.Linq;
+using TeaDriven.Graphology.Traversal;
 using Xunit;
 
-namespace TeaDriven.Graphology.Tests
+namespace TeaDriven.Graphology.Tests.Traversal
 {
     public class TypeExclusionsTests
     {
@@ -10,7 +11,7 @@ namespace TeaDriven.Graphology.Tests
         {
             public SutExcludeTypeExclusions(ITypeExclusion excludeFixed)
             {
-                _excludeFixed = excludeFixed;
+                this._excludeFixed = excludeFixed;
             }
         }
 
@@ -54,7 +55,7 @@ namespace TeaDriven.Graphology.Tests
         {
             public SutDoNotFollowTypeExclusions(ITypeExclusion doNotFollowFixed)
             {
-                _doNotFollowFixed = doNotFollowFixed;
+                this._doNotFollowFixed = doNotFollowFixed;
             }
         }
 

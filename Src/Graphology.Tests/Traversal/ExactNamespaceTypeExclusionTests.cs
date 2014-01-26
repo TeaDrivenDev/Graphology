@@ -1,7 +1,7 @@
-﻿using Ploeh.AutoFixture.Xunit;
+﻿using TeaDriven.Graphology.Traversal;
 using Xunit;
 
-namespace TeaDriven.Graphology.Tests
+namespace TeaDriven.Graphology.Tests.Traversal
 {
     public class ExactNamespaceTypeExclusionTests
     {
