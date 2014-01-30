@@ -9,8 +9,8 @@
             var depthString = "";
             if (depth > 0)
             {
-                depthString += new string(' ', 3 * (depth - 1));
-                depthString += " > ";
+                depthString += new string(' ', 4 * (depth - 1));
+                depthString += "> ";
             }
             return depthString;
         }
