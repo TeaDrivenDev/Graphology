@@ -14,6 +14,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{49E06F
 		.nuget\packages.config = .nuget\packages.config
 	EndProjectSection
 EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Graphology.TestsF", "Graphology.TestsF\Graphology.TestsF.fsproj", "{087E3675-048E-4ADE-A70F-2CC01D6D80F3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -45,6 +47,12 @@ Global
 		{12ECF1DE-A2DB-4CAF-9C5C-1A4DF266BA48}.Release|Any CPU.Build.0 = Release|Any CPU
 		{12ECF1DE-A2DB-4CAF-9C5C-1A4DF266BA48}.Verify|Any CPU.ActiveCfg = Release|Any CPU
 		{12ECF1DE-A2DB-4CAF-9C5C-1A4DF266BA48}.Verify|Any CPU.Build.0 = Release|Any CPU
+		{087E3675-048E-4ADE-A70F-2CC01D6D80F3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{087E3675-048E-4ADE-A70F-2CC01D6D80F3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{087E3675-048E-4ADE-A70F-2CC01D6D80F3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{087E3675-048E-4ADE-A70F-2CC01D6D80F3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{087E3675-048E-4ADE-A70F-2CC01D6D80F3}.Verify|Any CPU.ActiveCfg = Release|Any CPU
+		{087E3675-048E-4ADE-A70F-2CC01D6D80F3}.Verify|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
