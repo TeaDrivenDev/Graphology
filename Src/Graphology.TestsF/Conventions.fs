@@ -1,7 +1,5 @@
 ﻿namespace TeaDriven.Graphology.Tests
 
-//module Conventions =
-
 open System
 open System.Linq
 open Xunit
@@ -13,7 +11,7 @@ open Ploeh.AutoFixture.AutoFoq
 open Ploeh.AutoFixture.AutoNSubstitute
 
 type AutoFoqDataAttribute () =
-    inherit AutoDataAttribute ((new Fixture() :> IFixture).Customize(new AutoNSubstituteCustomization()))
+    inherit AutoDataAttribute ((new Fixture() :> IFixture).Customize(new AutoFoqCustomization()))
 
 [<AttributeUsage(AttributeTargets.Method, AllowMultiple = true)>]
 // this is necessary because F# 3.0 does not inherit the AttributeUsage attribute
@@ -24,5 +22,5 @@ type InlineAutoFoqDataAttribute ([<ParamArray>] parameters : Object[]) =
 module Extensions =
     type IFixture with
         member fixture.MakeNonRecursive () =
-            fixture.Behaviors.Remove(fixture.Behaviors.First(fun b -> b :? ThrowingRecursionBehavior))
+            fixture.Behaviors.Remove(fixture.Behaviors.First(fun b -> b :? ThrowingRecursionBehavior)) |> ignore
             fixture.Behaviors.Add(new OmitOnRecursionBehavior())
