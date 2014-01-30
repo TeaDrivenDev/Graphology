@@ -6,9 +6,26 @@ namespace TeaDriven.Graphology.Visualization
     {
         public string From(string previous)
         {
-            char prev = previous[0];
+            if (previous == null) throw new ArgumentNullException("previous");
 
-            return Convert.ToChar(Convert.ToInt32(prev) + 1).ToString();
+            char last = previous[previous.Length - 1];
+            if ('Z' == last)
+            {
+                if (1 == previous.Length)
+                {
+                    return "AA";
+                }
+                else
+                {
+                    return this.From(previous.Substring(0, previous.Length - 1)) + 'A';
+                }
+            }
+            else
+            {
+                last++;
+                previous = previous.Substring(0, previous.Length - 1) + last;
+                return previous;
+            }
         }
     }
 }

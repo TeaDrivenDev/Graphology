@@ -102,6 +102,7 @@
     <None Include="Foq.Usage.fsx" />
     <Compile Include="GraphNodeTests.fs" />
     <None Include="Script1.fsx" />
+    <Compile Include="DefaultGetNextLetterCodeTests.fs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Graphology\Graphology.csproj">
