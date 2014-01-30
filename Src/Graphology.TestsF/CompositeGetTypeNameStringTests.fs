@@ -35,21 +35,6 @@ module CompositeGetTypeNameStringTests =
 
         result |> should be False
 
-    [<Fact>]
-    let Test () =
-        let fixture = new Fixture()
-        fixture.Customize(new AutoFoq.AutoFoqCustomization())
-
-        let sut = fixture.Create<IGetNodeString>()
-        ()
-
-    [<Fact>]
-    let Test2 () =
-        let mock = Mock<IGetNodeString>().Create()
-        let expectNull = mock.For(null, 1)
-
-        ()
-
 //    [<Theory; AutoFoqData>]
 //    let ``For() returns false if no inner instance handles`` (fixture : IFixture) =
 //        let mutable name
