@@ -7,21 +7,21 @@ Graphologist : Graphologist
                     > EnumerableGetSubGraph : IGetSubGraph
                         > LazyGetObjectGraph : IGetObjectGraph (recursed)
                         > TypeExclusions : TypeExclusions
-                            > (H) EmptyTypeExclusion : ITypeExclusion
+                            > (M) EmptyTypeExclusion : ITypeExclusion
                             > CompositeTypeExclusion : ITypeExclusion
                                 > ITypeExclusion[] : IEnumerable<ITypeExclusion>
-                                    > (H) EmptyTypeExclusion : ITypeExclusion
-                                    > (C) CompositeTypeExclusion : ITypeExclusion
-                                        > ITypeExclusion[] : IEnumerable<ITypeExclusion>
-                                            > EmptyTypeExclusion : ITypeExclusion
-                                            > ExactNamespaceTypeExclusion : ITypeExclusion
-                                                > Func<Type, Boolean> : Func<Type, Boolean>
-                            > (G) EmptyTypeExclusion : ITypeExclusion
+                                    > (M) EmptyTypeExclusion : ITypeExclusion
+                                    > (D) CompositeTypeExclusion : ITypeExclusion
+                                        > (E) ITypeExclusion[] : IEnumerable<ITypeExclusion>
+                                            > (H) EmptyTypeExclusion : ITypeExclusion
+                                            > (F) ExactNamespaceTypeExclusion : ITypeExclusion
+                                                > (G) Func<Type, Boolean> : Func<Type, Boolean>
+                            > (L) EmptyTypeExclusion : ITypeExclusion
                             > CompositeTypeExclusion : ITypeExclusion
                                 > ITypeExclusion[] : IEnumerable<ITypeExclusion>
-                                    > (G) EmptyTypeExclusion : ITypeExclusion
+                                    > (L) EmptyTypeExclusion : ITypeExclusion
                                     > (A) ExactNamespaceTypeExclusion : ITypeExclusion
-                                        > Func<Type, Boolean> : Func<Type, Boolean>
+                                        > (B) Func<Type, Boolean> : Func<Type, Boolean>
                     > DefaultGetSubGraph : IGetSubGraph
                         > LazyGetObjectGraph : IGetObjectGraph (recursed)
                         > DefaultGetObjectFields : IGetObjectFields
@@ -29,37 +29,37 @@ Graphologist : Graphologist
                                 > DefaultGetTypeFields : IGetTypeFields
                                 > GenericListItemsTypeFieldExclusion : ITypeFieldExclusion
                         > TypeExclusions : TypeExclusions
-                            > (F) EmptyTypeExclusion : ITypeExclusion
+                            > (K) EmptyTypeExclusion : ITypeExclusion
                             > CompositeTypeExclusion : ITypeExclusion
                                 > ITypeExclusion[] : IEnumerable<ITypeExclusion>
-                                    > (F) EmptyTypeExclusion : ITypeExclusion
-                                    > (C) CompositeTypeExclusion : ITypeExclusion
-                                        > ITypeExclusion[] : IEnumerable<ITypeExclusion>
-                                            > EmptyTypeExclusion : ITypeExclusion
-                                            > ExactNamespaceTypeExclusion : ITypeExclusion
-                                                > Func<Type, Boolean> : Func<Type, Boolean>
-                            > (E) EmptyTypeExclusion : ITypeExclusion
+                                    > (K) EmptyTypeExclusion : ITypeExclusion
+                                    > (D) CompositeTypeExclusion : ITypeExclusion
+                                        > (E) ITypeExclusion[] : IEnumerable<ITypeExclusion>
+                                            > (H) EmptyTypeExclusion : ITypeExclusion
+                                            > (F) ExactNamespaceTypeExclusion : ITypeExclusion
+                                                > (G) Func<Type, Boolean> : Func<Type, Boolean>
+                            > (J) EmptyTypeExclusion : ITypeExclusion
                             > CompositeTypeExclusion : ITypeExclusion
                                 > ITypeExclusion[] : IEnumerable<ITypeExclusion>
-                                    > (E) EmptyTypeExclusion : ITypeExclusion
+                                    > (J) EmptyTypeExclusion : ITypeExclusion
                                     > (A) ExactNamespaceTypeExclusion : ITypeExclusion
-                                        > Func<Type, Boolean> : Func<Type, Boolean>
+                                        > (B) Func<Type, Boolean> : Func<Type, Boolean>
             > TypeExclusions : TypeExclusions
-                > (D) EmptyTypeExclusion : ITypeExclusion
+                > (I) EmptyTypeExclusion : ITypeExclusion
                 > CompositeTypeExclusion : ITypeExclusion
                     > ITypeExclusion[] : IEnumerable<ITypeExclusion>
-                        > (D) EmptyTypeExclusion : ITypeExclusion
-                        > (C) CompositeTypeExclusion : ITypeExclusion
-                            > ITypeExclusion[] : IEnumerable<ITypeExclusion>
-                                > EmptyTypeExclusion : ITypeExclusion
-                                > ExactNamespaceTypeExclusion : ITypeExclusion
-                                    > Func<Type, Boolean> : Func<Type, Boolean>
-                > (B) EmptyTypeExclusion : ITypeExclusion
+                        > (I) EmptyTypeExclusion : ITypeExclusion
+                        > (D) CompositeTypeExclusion : ITypeExclusion
+                            > (E) ITypeExclusion[] : IEnumerable<ITypeExclusion>
+                                > (H) EmptyTypeExclusion : ITypeExclusion
+                                > (F) ExactNamespaceTypeExclusion : ITypeExclusion
+                                    > (G) Func<Type, Boolean> : Func<Type, Boolean>
+                > (C) EmptyTypeExclusion : ITypeExclusion
                 > CompositeTypeExclusion : ITypeExclusion
                     > ITypeExclusion[] : IEnumerable<ITypeExclusion>
-                        > (B) EmptyTypeExclusion : ITypeExclusion
+                        > (C) EmptyTypeExclusion : ITypeExclusion
                         > (A) ExactNamespaceTypeExclusion : ITypeExclusion
-                            > Func<Type, Boolean> : Func<Type, Boolean>
+                            > (B) Func<Type, Boolean> : Func<Type, Boolean>
 > DefaultGraphVisualization2 : IGraphVisualization
     > DefaultGetNodeString : IGetNodeString
         > DefaultGetDepthString : IGetDepthString
