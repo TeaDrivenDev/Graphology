@@ -1,6 +1,7 @@
 Graphology
 ==========
 
+
 SOLID application code consists of many rather small classes mutually hidden behind abstractions (usually interfaces in .NET). This makes them easily maintainable, extendable and testable, but bears the disadvantage that it is often hard to tell which specific implementation of an interface the current code will collaborate with in the final application.  
 
 **Graphology** is a small library that can traverse a SOLID object graph and create a textual representation of it to visualize its structure and concrete implementations used.
@@ -8,6 +9,7 @@ SOLID application code consists of many rather small classes mutually hidden beh
 
 Usage is currently manual: In the unit test project for your production code, create a test method like this (runnable [here](https://github.com/TeaDrivenDev/Graphology/blob/master/Src/Graphology.Tests/_InsightTests.cs)):
 
+```c#
 	[Fact]
 	public void WriteGraphologistGraph()
 	{
@@ -28,7 +30,7 @@ Usage is currently manual: In the unit test project for your production code, cr
 	
 	    // Assert
 	}
-
+```
 
 The `target` variable is assigned the object that you want to graph, and the result is written to the folder given in `projectPath` (relative to the test project folder) with the name set in `graphName` suffixed with "_Graph.txt". If you add this file to the production project (which currently also is a one-time manual step), it will always be available there and updated whenever you re-run the test method (**ReSharper** works for this, and I suppose the **xUnit test runner** will do it as well; continuous test runners like **NCrunch** run the tests from their own temporary folders, so the relative path will point into Nirvana and the test will fail - exclude such tests in NCrunch). 
 
@@ -61,7 +63,7 @@ All **Graphology** code currently resides in a single file to allow for easily i
 
 
 Current status:
-**Graphology** is usable for its originally intended purpose, although still rather 'bare bones'. It is not a good example of TDD as many parts were spiked, so test coverage is currently rather low. There is also no XML documentation on the classes.
+**Graphology** is usable for its originally intended purpose, although still rather 'bare bones'. It is not a good example of TDD as many parts were spiked, so test coverage is currently rather low (I am currently (re)writing the tests in **F#**). There are also some reliability issues in the type exclusion mechanism. There is no XML documentation on the classes yet.
 
 Ideally, this will at some point become something like a Visual Studio or (more likely) ReSharper plugin updating live from the composition root and enabling navigation to individual classes right from the graph tree.
 
