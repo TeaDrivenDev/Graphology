@@ -37,7 +37,7 @@ namespace TeaDriven.Graphology.Traversal
 
             foreach (var fieldValue in fieldValues.Where(v => null != v.FieldValue))
             {
-                if (!this.TypeIsExcluded(fieldValue.ReferenceType))
+                if ((!this.TypeIsExcluded(fieldValue.ReferenceType)) && (!this.TypeIsExcluded(fieldValue.FieldValue.GetType())))
                 {
                     subGraph.Add(this._getObjectGraph.For(fieldValue.FieldValue, fieldValue.ReferenceType, fieldValue.ReferenceName,
                                                           graphPath));

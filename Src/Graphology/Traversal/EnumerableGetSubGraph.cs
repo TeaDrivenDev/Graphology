@@ -50,13 +50,18 @@ namespace TeaDriven.Graphology.Traversal
 
             if (null != genericIenumerable)
             {
-                Type itemType = genericIenumerable.GetGenericArguments().First();
+                Type itemReferenceType = genericIenumerable.GetGenericArguments().First();
 
                 foreach (var item in currentObject as IEnumerable)
                 {
                     if (null != item)
                     {
-                        subGraph.Add(this._getObjectGraph.For(item, itemType, "Item", graphPath));
+                        Type itemConcreteType = item.GetType();
+
+                        if ((!this.TypeIsExcluded(itemReferenceType)) && (!this.TypeIsExcluded(itemConcreteType)))
+                        {
+                            subGraph.Add(this._getObjectGraph.For(item, itemReferenceType, "Item", graphPath));
+                        }
                     }
                 }
 
