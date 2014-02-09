@@ -1,12 +1,12 @@
 ﻿#if INTERACTIVE // Emulate minimal NUnit in F# Interactive
-#r @"..\..\packages\Foq.1.6\Lib\net40\Foq.dll"
+#r @"..\packages\Foq.1.6\Lib\net40\Foq.dll"
 
 type TestAttribute() = inherit System.Attribute()
 
 module Assert =
     let inline IsTrue(success) = if not success then failwith "Expected true"
     let inline AreEqual(expected, actual) =
-        if not (expected = actual) then
+        if not (expected = actual) then 
             sprintf "Expected '%A' Actual '%A'" expected actual |> failwith
     let inline Throws<'T when 'T :> exn> (f) =
         let fail () = failwith "Expected %s" typeof<'T>.Name
@@ -130,7 +130,7 @@ type ICalculator =
 
 let [<Test>] ``mock calculator`` () =
     // Arrange
-    let instance =
+    let instance = 
         Mock<ICalculator>()
             .Setup(fun x -> <@ x.Total @>).Returns(2)
             .Create()
@@ -144,7 +144,7 @@ let [<Test>] ``implement IList interface members`` () =
     // Arrange
     let xs =
         Mock<System.Collections.Generic.IList<char>>.With(fun xs ->
-            <@ xs.Count --> 2
+            <@ xs.Count --> 2 
                xs.Item(0) --> '0'
                xs.Item(1) --> '1'
                xs.Contains(any()) --> true

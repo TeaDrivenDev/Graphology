@@ -13,7 +13,7 @@ open Ploeh.AutoFixture.AutoNSubstitute
 type AutoFoqDataAttribute () =
     inherit AutoDataAttribute ((new Fixture() :> IFixture).Customize(new AutoFoqCustomization()))
 
-[<AttributeUsage(AttributeTargets.Method, AllowMultiple = true)>]
+[<AttributeUsage(AttributeTargets.Method, AllowMultiple = true, Inherited = true)>]
 // this is necessary because F# 3.0 does not inherit the AttributeUsage attribute
 // http://stackoverflow.com/questions/12621301/why-does-f-not-allow-multiple-attributes-where-c-sharp-does
 type InlineAutoFoqDataAttribute ([<ParamArray>] parameters : Object[]) =

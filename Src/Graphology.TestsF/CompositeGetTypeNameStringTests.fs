@@ -35,11 +35,23 @@ module CompositeGetTypeNameStringTests =
 
         result |> should be False
 
-//    [<Theory; AutoFoqData>]
-//    let ``For() returns false if no inner instance handles`` (fixture : IFixture) =
-//        let mutable name
-//        let innerInstance = Mock<IGetTypeNameString>().SetupByName("For").Returns("sdjf")..Create()
-//
-//        let result, resultName = innerInstance.For typeof<IGetNodeString>
-//
-//        result |> should be False
+    [<Theory; AutoFoqData>]
+    let ``For() returns false if no inner instance handles`` (fixture : IFixture) =
+        let innerInstances =
+            [for i in 1..3 ->
+                Mock<IGetTypeNameString>().SetupByName("For").Returns((true, "lol")).Create()
+//                { new IGetTypeNameString with
+//                    member __.For(t, name) =
+//                        name <- ""
+//                        false
+//                }
+            ]
+
+        fixture.Inject<IEnumerable<IGetTypeNameString>> innerInstances
+
+        let sut = fixture.Create<CompositeGetTypeNameString>()
+
+        let result, resultName = sut.For typeof<string>
+
+        result |> should be True
+        Assert.Equal<string>("lol", resultName)
