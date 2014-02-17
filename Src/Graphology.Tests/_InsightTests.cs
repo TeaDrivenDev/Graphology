@@ -17,7 +17,7 @@ namespace TeaDriven.Graphology.Tests
             var graphologist = new Graphologist(new DefaultGraphTraversal(new MinimalTypeExclusions()
                                                                           {
                                                                               Exclude = new ExactNamespaceTypeExclusion("System")
-                                                                          }), new DefaultGraphVisualization2());
+                                                                          }), new DefaultGraphVisualization());
 
             var target = graphologist;
 

@@ -60,7 +60,7 @@ Graphologist : Graphologist
                         > (C) EmptyTypeExclusion : ITypeExclusion
                         > (A) ExactNamespaceTypeExclusion : ITypeExclusion
                             > (B) Func<Type, Boolean> : Func<Type, Boolean>
-> DefaultGraphVisualization2 : IGraphVisualization
+> DefaultGraphVisualization : IGraphVisualization
     > DefaultGetNodeString : IGetNodeString
         > DefaultGetDepthString : IGetDepthString
         > DefaultGetMemberTypesString : IGetMemberTypesString

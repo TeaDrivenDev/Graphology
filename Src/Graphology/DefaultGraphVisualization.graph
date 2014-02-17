@@ -8,3 +8,6 @@ DefaultGraphVisualization : DefaultGraphVisualization
                     > RecursiveGenericTypeGetTypeNameString : IGetTypeNameString
                         > LazyGetTypeNameString : IGetTypeNameString (recursed)
                     > DefaultGetTypeNameString : IGetTypeNameString
+> DefaultGetHashCodeMappings : IGetHashCodeMappings
+    > DefaultGetNextLetterCode : IGetNextLetterCode
+> DefaultGetRecurringObjectHashes : IGetRecurringObjectHashes
