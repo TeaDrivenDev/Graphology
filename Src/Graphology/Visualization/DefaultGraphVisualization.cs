@@ -1,11 +1,14 @@
 ﻿namespace TeaDriven.Graphology.Visualization
 {
-    public class DefaultGraphVisualization : TextGraphVisualization
+    public class DefaultGraphVisualization : RecurrenceMarkingTextGraphVisualization
     {
         #region Constructors
 
         public DefaultGraphVisualization()
-            : base(BuildGetNodeString()) { }
+            : base(
+                BuildGetNodeString(), new DefaultGetHashCodeMappings(new DefaultGetNextLetterCode()), new DefaultGetRecurringObjectHashes())
+        {
+        }
 
         #endregion Constructors
 
@@ -20,7 +23,10 @@
             lazyGetTypeNameString.GetTypeNameString = getTypeNameString;
 
             IGetNodeString getNodeString = new DefaultGetNodeString(new DefaultGetDepthString(),
-                                                                    new DefaultGetMemberTypesString(lazyGetTypeNameString));
+                                                                    new DefaultGetMemberTypesString(lazyGetTypeNameString))
+                                           {
+                                               Format = "{0}{{0}}{1}"
+                                           };
 
             return getNodeString;
         }

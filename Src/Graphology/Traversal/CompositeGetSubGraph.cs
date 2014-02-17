@@ -44,12 +44,6 @@ namespace TeaDriven.Graphology.Traversal
                 handled = getSubGraph.For(currentObject, graphPath, out subSubGraph);
 
                 localSubGraph.AddRange(subSubGraph);
-
-                //if (handled)
-                //{
-                //    // TODO: Unbreak
-                //    break;
-                //}
             }
 
             subGraph = localSubGraph;

@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿using System;
+using System.Text.RegularExpressions;
 
 namespace TeaDriven.Graphology.Traversal
 {
@@ -21,6 +22,8 @@ namespace TeaDriven.Graphology.Traversal
                        return applies;
                    })
         {
+            if (@namespace == null) throw new ArgumentNullException("namespace");
+
             this._ns = @namespace;
         }
 

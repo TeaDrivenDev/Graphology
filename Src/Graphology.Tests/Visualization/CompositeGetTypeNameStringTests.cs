@@ -1,4 +1,5 @@
-﻿using NSubstitute;
+﻿using Foq.Linq;
+using NSubstitute;
 using Ploeh.AutoFixture;
 using Ploeh.AutoFixture.Idioms;
 using Ploeh.AutoFixture.Xunit;
@@ -93,10 +94,10 @@ namespace TeaDriven.Graphology.Tests.Visualization
             var @out = Arg.Any<string>();
 
             firstInnerInstance.For(type, out @out).Returns(x =>
-                                                           {
-                                                               x[1] = expectedTypeName;
-                                                               return true;
-                                                           });
+                                                    {
+                                                        x[1] = expectedTypeName;
+                                                        return true;
+                                                    });
 
             foreach (var innerInstance in innerInstances)
             {
@@ -159,6 +160,25 @@ namespace TeaDriven.Graphology.Tests.Visualization
             // Assert
             Assert.Equal(expectedTypeName, resultTypeName);
             Assert.Equal(expectedResult, result);
+        }
+
+        [Fact]
+        public void Foq_Out()
+        {
+            // Arrange
+            var name = "result";
+            var instance = new Mock<IGetTypeNameString>()
+                .Setup(x => x.For(It.IsAny<Type>(), out name))
+                .Returns(true)
+                .Create();
+
+            // Act
+            string resultName;
+            var result = instance.For(typeof(string), out resultName);
+
+            // Assert
+            Assert.True(result);
+            Assert.Equal("result", resultName);
         }
     }
 }

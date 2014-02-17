@@ -1,6 +1,8 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2012
+# Visual Studio 2013
+VisualStudioVersion = 12.0.30110.0
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Graphology", "Graphology\Graphology.csproj", "{CA8CA376-4E90-4745-913A-B9F1B81760E5}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Graphology.Tests", "Graphology.Tests\Graphology.Tests.csproj", "{24C47484-DBE5-46EB-B3C1-596150AC1DB0}"
@@ -9,10 +11,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Graphology.AutoFixture", "G
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Graphology.AutoFixture.Tests", "Graphology.AutoFixture.Tests\Graphology.AutoFixture.Tests.csproj", "{12ECF1DE-A2DB-4CAF-9C5C-1A4DF266BA48}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{49E06FA5-5C7D-4BDF-985D-4E48DBDB066D}"
-	ProjectSection(SolutionItems) = preProject
-		.nuget\packages.config = .nuget\packages.config
-	EndProjectSection
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Graphology.TestsF", "Graphology.TestsF\Graphology.TestsF.fsproj", "{087E3675-048E-4ADE-A70F-2CC01D6D80F3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -45,6 +44,12 @@ Global
 		{12ECF1DE-A2DB-4CAF-9C5C-1A4DF266BA48}.Release|Any CPU.Build.0 = Release|Any CPU
 		{12ECF1DE-A2DB-4CAF-9C5C-1A4DF266BA48}.Verify|Any CPU.ActiveCfg = Release|Any CPU
 		{12ECF1DE-A2DB-4CAF-9C5C-1A4DF266BA48}.Verify|Any CPU.Build.0 = Release|Any CPU
+		{087E3675-048E-4ADE-A70F-2CC01D6D80F3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{087E3675-048E-4ADE-A70F-2CC01D6D80F3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{087E3675-048E-4ADE-A70F-2CC01D6D80F3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{087E3675-048E-4ADE-A70F-2CC01D6D80F3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{087E3675-048E-4ADE-A70F-2CC01D6D80F3}.Verify|Any CPU.ActiveCfg = Release|Any CPU
+		{087E3675-048E-4ADE-A70F-2CC01D6D80F3}.Verify|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

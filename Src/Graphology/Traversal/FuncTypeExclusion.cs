@@ -25,6 +25,8 @@ namespace TeaDriven.Graphology.Traversal
 
         public bool AppliesTo(Type type)
         {
+            if (type == null) throw new ArgumentNullException("type");
+
             return this._rule(type);
         }
 

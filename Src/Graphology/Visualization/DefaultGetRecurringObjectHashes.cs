@@ -12,17 +12,17 @@ namespace TeaDriven.Graphology.Visualization
             IEnumerable<GraphNode> nodes = graph.Traverse().Where(n => !n.IsRecursionStart);
             IEnumerable<GraphNode> recurringNodes = nodes.GroupBy(n => n.ObjectHashCode).Where(g => g.Count() > 1).Select(g => g.First());
 
-            int removed = 0;
+            //int removed = 0;
 
-            do
-            {
-                IEnumerable<GraphNode> toRemove = recurringNodes.Where(n => recurringNodes.Any(n2 => n2.SubGraph.Contains(n))).ToList();
+            //do
+            //{
+            //    IEnumerable<GraphNode> toRemove = recurringNodes.Where(n => recurringNodes.Any(n2 => n2.SubGraph.Contains(n))).ToList();
 
-                removed = toRemove.Count();
+            //    removed = toRemove.Count();
 
-                recurringNodes = recurringNodes.Except(toRemove);
-            }
-            while (removed > 0);
+            //    recurringNodes = recurringNodes.Except(toRemove);
+            //}
+            //while (removed > 0);
 
             IEnumerable<int> hashes = recurringNodes.Select(n => n.ObjectHashCode);
 

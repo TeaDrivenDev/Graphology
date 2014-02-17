@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 
 namespace TeaDriven.Graphology.Traversal
 {
@@ -45,7 +46,7 @@ namespace TeaDriven.Graphology.Traversal
                                  ReferenceType = referenceType,
                                  ObjectType = currentObject.GetType(),
                                  ReferenceName = referenceName,
-                                 ObjectHashCode = currentObject.GetHashCode()
+                                 ObjectHashCode = RuntimeHelpers.GetHashCode(currentObject)
                              };
 
             if (graphPath.Contains(currentObject))

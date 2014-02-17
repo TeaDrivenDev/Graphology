@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doc>
+<assembly><name>Ploeh.AutoFixture.AutoFoq</name></assembly>
+<members>
+<member name="">
+
+</member>
+<member name="P:Ploeh.AutoFixture.AutoFoq.AutoFoqCustomization.Relay">
+ <summary>
+ Gets the relay that will be added to 
+ <see cref="IFixture.ResidueCollectors"/> when <see cref="Customize"/>
+ is invoked.
+ </summary>
+</member>
+<member name="">
+
+</member>
+<member name="M:Ploeh.AutoFixture.AutoFoq.AutoFoqCustomization.Customize(Ploeh.AutoFixture.IFixture)">
+ <summary>
+ Customizes an <see cref="IFixture"/> to enable auto-mocking with Foq.
+ </summary>
+ <param name="fixture">The fixture upon which to enable auto-mocking.
+ </param>
+</member>
+<member name="M:Ploeh.AutoFixture.AutoFoq.AutoFoqCustomization.#ctor">
+ <summary>
+ Initializes a new instance of the <see cref="AutoFoqCustomization"/> 
+ class.
+ </summary>
+</member>
+<member name="">
+
+</member>
+<member name="T:Ploeh.AutoFixture.AutoFoq.AutoFoqCustomization">
+ <summary>
+ Enables auto-mocking with Foq.
+ </summary>
+</member>
+<member name="">
+
+</member>
+<member name="M:Ploeh.AutoFixture.AutoFoq.FoqMethodQuery.SelectMethods(System.Type)">
+ <summary>
+ Selects methods for the supplied type.
+ </summary>
+ <param name="type">The type.</param>
+ <returns>
+ Constructors for <paramref name="type"/>.
+ </returns>
+ <remarks>
+ <para>
+ This method returns a sequence of <see cref="IMethod"/> according to
+ the public and protected constructors available on 
+ <paramref name="type"/>.
+ </para>
+ </remarks>
+</member>
+<member name="">
+
+</member>
+<member name="T:Ploeh.AutoFixture.AutoFoq.FoqMethodQuery">
+ <summary>
+ Selects appropriate methods to create <see cref="Foq.Mock&lt;T&gt;"/> 
+ instances.
+ </summary>
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="T:Ploeh.AutoFixture.AutoFoq.FoqMethod">
+
+</member>
+<member name="">
+
+</member>
+<member name="T:Ploeh.AutoFixture.AutoFoq.FoqType">
+
+</member>
+</members>
+</doc>
