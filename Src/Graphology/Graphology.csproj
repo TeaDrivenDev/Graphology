@@ -189,11 +189,9 @@
     <Compile Include="Traversal\TypeExclusionsClientBase.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="DefaultGraphVisualization.graph" />
+    <None Include="Graphologist.graph" />
     <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="DefaultGraphVisualization_Graph.txt" />
-    <Content Include="Graphologist_Graph.txt" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
