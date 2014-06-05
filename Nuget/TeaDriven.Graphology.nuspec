@@ -13,7 +13,7 @@
         </dependencies>
     </metadata>
     <files>
-        <file src="TeaDriven.Graphology.dll" target="lib\net35" />
-        <file src="TeaDriven.Graphology.xml" target="lib\net35" />
+        <file src="..\bin\TeaDriven.Graphology.dll" target="lib\net35" />
+        <file src="..\bin\TeaDriven.Graphology.xml" target="lib\net35" />
     </files>
 </package>
